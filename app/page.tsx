@@ -1,7 +1,8 @@
 "use client";
 
-import { Dropzone } from "@/components/dropzone";
+import { Dropzone, DropZoneArea } from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
+import { Upload } from "lucide-react";
 import { errAsync, okAsync } from "neverthrow";
 
 export default function Home() {
@@ -21,7 +22,10 @@ export default function Home() {
           return okAsync("");
         }}
       >
-        <div>Hello</div>
+        <DropZoneArea className="flex flex-col items-center gap-2">
+          <Upload />
+          <p>Click or drag and drop files to upload them</p>
+        </DropZoneArea>
       </Dropzone>
     </div>
   );
