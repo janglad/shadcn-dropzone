@@ -1,8 +1,24 @@
 import { cn } from "@/lib/utils";
-import { ResultAsync } from "neverthrow";
 import { createContext, useContext, useId, useReducer, useState } from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
+
+type OurDropzoneResult<TUploadRes, TUploadError> =
+  | {
+      status: "pending";
+      result?: undefined;
+      error?: undefined;
+    }
+  | {
+      status: "error";
+      result?: undefined;
+      error: TUploadError;
+    }
+  | {
+      status: "success";
+      result: TUploadRes;
+      error?: undefined;
+    };
 
 interface InfiniteProgressProps {
   status: "pending" | "success" | "error";
@@ -41,13 +57,9 @@ export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
   fileName: string;
   file: File;
-} & (
-  | { status: "pending"; result?: undefined; error?: undefined }
-  | { status: "success"; result: TUploadRes; error?: undefined }
-  | { status: "error"; result?: undefined; error: TUploadError }
-);
+} & OurDropzoneResult<TUploadRes, TUploadError>;
 
-const fileStatusReducer = <TUploadRes, TUploadError extends string | undefined>(
+const fileStatusReducer = <TUploadRes, TUploadError>(
   state: FileStatus<TUploadRes, TUploadError>[],
   action:
     | {
@@ -63,11 +75,7 @@ const fileStatusReducer = <TUploadRes, TUploadError extends string | undefined>(
     | ({
         type: "update-status";
         id: string;
-      } & (
-        | { status: "pending"; result?: undefined; error?: undefined }
-        | { status: "success"; result: TUploadRes; error?: undefined }
-        | { status: "error"; result?: undefined; error: TUploadError }
-      ))
+      } & OurDropzoneResult<TUploadRes, TUploadError>)
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {
     case "add":
@@ -148,11 +156,12 @@ const getRootError = (
   return joinedErrors.charAt(0).toUpperCase() + joinedErrors.slice(1);
 };
 
-interface UseOurDropzoneProps<
-  TUploadRes,
-  TUploadError extends string | undefined
-> {
-  onDropFile: (file: File) => ResultAsync<TUploadRes, TUploadError>;
+interface UseOurDropzoneProps<TUploadRes, TUploadError> {
+  onDropFile: (
+    file: File
+  ) => Promise<
+    Exclude<OurDropzoneResult<TUploadRes, TUploadError>, { status: "pending" }>
+  >;
   onRemoveFile?: (id: string) => void | Promise<void>;
   onFileUploaded?: (result: TUploadRes) => void;
   onFileUploadError?: (error: TUploadError) => void;
@@ -166,10 +175,7 @@ interface UseOurDropzoneProps<
   };
 }
 
-interface UseOurDropzoneReturn<
-  TUploadRes,
-  TUploadError extends string | undefined
-> {
+interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   getRootProps: ReturnType<typeof useDropzone>["getRootProps"];
   getInputProps: ReturnType<typeof useDropzone>["getInputProps"];
   onRemoveFile: (id: string) => Promise<void>;
@@ -183,10 +189,7 @@ interface UseOurDropzoneReturn<
   messageId: string;
 }
 
-export function useOurDropZone<
-  TUploadRes,
-  TUploadError extends string | undefined
->(
+export function useOurDropZone<TUploadRes, TUploadError>(
   props: UseOurDropzoneProps<TUploadRes, TUploadError>
 ): UseOurDropzoneReturn<TUploadRes, TUploadError> {
   const inputId = useId();
@@ -202,21 +205,12 @@ export function useOurDropZone<
 
   const _uploadFile = async (file: File, id: string) => {
     const result = await props.onDropFile(file);
-    if (result.isOk()) {
-      dispatch({
-        type: "update-status",
-        id,
-        status: "success",
-        result: result.value,
-      });
-    } else {
-      dispatch({
-        type: "update-status",
-        id,
-        status: "error",
-        error: result.error,
-      });
-    }
+
+    dispatch({
+      type: "update-status",
+      id,
+      ...result,
+    });
   };
 
   const onRemoveFile = async (id: string) => {
@@ -300,17 +294,14 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   messageId: "",
 });
 
-const useOurDropzoneContext = <
-  TUploadRes,
-  TUploadError extends string | undefined
->() => {
+const useOurDropzoneContext = <TUploadRes, TUploadError>() => {
   return useContext(DropZoneContext) as UseOurDropzoneReturn<
     TUploadRes,
     TUploadError
   >;
 };
 
-export function Dropzone<TUploadRes, TUploadError extends string | undefined>(
+export function Dropzone<TUploadRes, TUploadError>(
   props: UseOurDropzoneReturn<TUploadRes, TUploadError> & {
     children: React.ReactNode;
   }
@@ -356,31 +347,25 @@ export function DropZoneArea(props: DropZoneAreaProps) {
   );
 }
 
-interface DropzoneFileListContext<
-  TUploadRes,
-  TUploadError extends string | undefined
-> {
+interface DropzoneFileListContext<TUploadRes, TUploadError> {
   onRemoveFile: () => Promise<void>;
   onRetry: () => Promise<void>;
   fileStatus: FileStatus<TUploadRes, TUploadError>;
 }
 
 const DropzoneFileListContext = createContext<
-  DropzoneFileListContext<any, any>
+  DropzoneFileListContext<unknown, unknown>
 >({
   onRemoveFile: async () => {},
   onRetry: async () => {},
-  fileStatus: {} as FileStatus<any, any>,
+  fileStatus: {} as FileStatus<unknown, unknown>,
 });
 
 const useDropzoneFileListContext = () => {
   return useContext(DropzoneFileListContext);
 };
 
-export function DropzoneFileListItem<
-  TUploadRes,
-  TUploadError extends string | undefined
->(props: {
+export function DropzoneFileListItem<TUploadRes, TUploadError>(props: {
   children: React.ReactNode;
   fileStatus: FileStatus<TUploadRes, TUploadError>;
 }) {
@@ -396,18 +381,14 @@ export function DropzoneFileListItem<
   );
 }
 
-interface DropZoneFileListProps<
-  TUploadRes,
-  TUploadError extends string | undefined
-> {
+interface DropZoneFileListProps<TUploadRes, TUploadError> {
   className?: string;
   render: (status: FileStatus<TUploadRes, TUploadError>) => React.ReactNode;
 }
 
-export function DropzoneFileList<
-  TUploadRes,
-  TUploadError extends string | undefined
->(props: DropZoneFileListProps<TUploadRes, TUploadError>) {
+export function DropzoneFileList<TUploadRes, TUploadError = string>(
+  props: DropZoneFileListProps<TUploadRes, TUploadError>
+) {
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
 
   return (
