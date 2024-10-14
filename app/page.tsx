@@ -2,13 +2,13 @@
 
 import {
   Dropzone,
+  DropzoneAction,
   DropZoneArea,
   DropzoneFileList,
   useOurDropZone,
 } from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
-import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Trash, Upload } from "lucide-react";
 import { errAsync, okAsync } from "neverthrow";
 
 export default function Home() {
@@ -34,9 +34,12 @@ export default function Home() {
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
-            render={({ fileName }, { remove }) => (
+            render={({ fileName }) => (
               <div>
-                {fileName} <Button onClick={remove}>Remove</Button>
+                {fileName}
+                <DropzoneAction action="remove">
+                  <Trash />
+                </DropzoneAction>
               </div>
             )}
           />

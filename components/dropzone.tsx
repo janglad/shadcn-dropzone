@@ -1,14 +1,8 @@
 import { cn } from "@/lib/utils";
 import { ResultAsync } from "neverthrow";
-import {
-  createContext,
-  Fragment,
-  useContext,
-  useId,
-  useReducer,
-  useState,
-} from "react";
+import { createContext, useContext, useId, useReducer, useState } from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
+import { Button, ButtonProps } from "./ui/button";
 
 export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
@@ -313,29 +307,85 @@ export function DropZoneArea(props: DropZoneAreaProps) {
   );
 }
 
-interface DropZoneFileListProps {
-  className?: string;
-  render: (
-    status: FileStatus<any, any>,
-    actions: { remove: (e: React.MouseEvent) => void }
-  ) => React.ReactNode;
+interface DropzoneFileListContext<
+  TUploadRes,
+  TUploadError extends string | undefined
+> {
+  onRemoveFile: () => Promise<void>;
+  fileStatus: FileStatus<TUploadRes, TUploadError>;
 }
 
-export function DropzoneFileList(props: DropZoneFileListProps) {
+const DropzoneFileListContext = createContext<
+  DropzoneFileListContext<any, any>
+>({
+  onRemoveFile: async () => {},
+  fileStatus: {} as FileStatus<any, any>,
+});
+
+const useDropzoneFileListContext = () => {
+  return useContext(DropzoneFileListContext);
+};
+
+export function DropzoneFileListItem<
+  TUploadRes,
+  TUploadError extends string | undefined
+>(props: {
+  children: React.ReactNode;
+  fileStatus: FileStatus<TUploadRes, TUploadError>;
+}) {
   const context = useOurDropzoneContext();
+  const onRemoveFile = () => context.onRemoveFile(props.fileStatus.id);
+  return (
+    <DropzoneFileListContext.Provider
+      value={{ onRemoveFile, fileStatus: props.fileStatus }}
+    >
+      {props.children}
+    </DropzoneFileListContext.Provider>
+  );
+}
+
+interface DropZoneFileListProps<
+  TUploadRes,
+  TUploadError extends string | undefined
+> {
+  className?: string;
+  render: (status: FileStatus<TUploadRes, TUploadError>) => React.ReactNode;
+}
+
+export function DropzoneFileList<
+  TUploadRes,
+  TUploadError extends string | undefined
+>(props: DropZoneFileListProps<TUploadRes, TUploadError>) {
+  const context = useOurDropzoneContext<TUploadRes, TUploadError>();
 
   return (
     <div className={cn(props.className)}>
       {context.fileStatuses.map((status) => (
-        <Fragment key={status.id}>
-          {props.render(status, {
-            remove: (e: React.MouseEvent) => {
-              e.stopPropagation();
-              context.onRemoveFile(status.id);
-            },
-          })}
-        </Fragment>
+        <DropzoneFileListItem key={status.id} fileStatus={status}>
+          {props.render(status)}
+        </DropzoneFileListItem>
       ))}
     </div>
+  );
+}
+
+interface DropzoneActionProps extends Omit<ButtonProps, "onClick"> {
+  action: "remove";
+  children: React.ReactNode;
+}
+
+export function DropzoneAction(props: DropzoneActionProps) {
+  const context = useDropzoneFileListContext();
+  return (
+    <Button
+      onClick={(e) => {
+        e.stopPropagation();
+        context.onRemoveFile();
+      }}
+      size="icon"
+      {...props}
+    >
+      {props.children}
+    </Button>
   );
 }
