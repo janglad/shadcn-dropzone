@@ -5,10 +5,11 @@ import {
   DropzoneAction,
   DropZoneArea,
   DropzoneFileList,
+  InfiniteProgress,
   useOurDropZone,
 } from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
-import { Trash, Upload } from "lucide-react";
+import { FileIcon, Trash2Icon, Upload } from "lucide-react";
 import { errAsync, okAsync } from "neverthrow";
 
 export default function Home() {
@@ -34,13 +35,32 @@ export default function Home() {
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
-            render={({ fileName }) => (
-              <div>
-                {fileName}
-                <DropzoneAction action="remove">
-                  <Trash />
-                </DropzoneAction>
-              </div>
+            className="w-full"
+            render={({ fileName, status, file, error }) => (
+              <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2">
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-2 font-bold">
+                    <FileIcon className="size-5 text-muted-foreground" />
+                    {fileName}
+                  </div>
+                  <DropzoneAction
+                    action="remove"
+                    variant="ghost"
+                    className="hover:border"
+                    type="button"
+                    size="icon"
+                  >
+                    <Trash2Icon className="size-4" />
+                  </DropzoneAction>
+                </div>
+                <InfiniteProgress status={status} />
+                <div className="flex justify-between">
+                  <p>{Math.round(file.size / 1024 / 1024)} MB</p>
+                  {error !== undefined && (
+                    <p className="text-sm text-destructive">{error}</p>
+                  )}
+                </div>
+              </li>
             )}
           />
         </DropZoneArea>

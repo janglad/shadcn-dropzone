@@ -4,6 +4,39 @@ import { createContext, useContext, useId, useReducer, useState } from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
 
+interface InfiniteProgressProps {
+  status: "pending" | "success" | "error";
+}
+
+const valueTextMap = {
+  pending: "indeterminate",
+  success: "100%",
+  error: "error",
+};
+
+export function InfiniteProgress(props: InfiniteProgressProps) {
+  const done = props.status === "success" || props.status === "error";
+  const error = props.status === "error";
+  return (
+    <div
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={valueTextMap[props.status]}
+      className="relative h-2 w-full overflow-hidden rounded-full bg-muted"
+    >
+      <div
+        //   TODO: add proper done transition
+        className={cn(
+          "h-full w-full rounded-full bg-primary",
+          done ? "translate-x-0" : "animate-infinite-progress",
+          error && "bg-destructive"
+        )}
+      />
+    </div>
+  );
+}
+
 export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
   fileName: string;
@@ -359,13 +392,13 @@ export function DropzoneFileList<
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
 
   return (
-    <div className={cn(props.className)}>
+    <ol className={cn("flex flex-col gap-4 py-2 px-4", props.className)}>
       {context.fileStatuses.map((status) => (
         <DropzoneFileListItem key={status.id} fileStatus={status}>
           {props.render(status)}
         </DropzoneFileListItem>
       ))}
-    </div>
+    </ol>
   );
 }
 
@@ -382,6 +415,7 @@ export function DropzoneAction(props: DropzoneActionProps) {
         e.stopPropagation();
         context.onRemoveFile();
       }}
+      type="button"
       size="icon"
       {...props}
     >
