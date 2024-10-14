@@ -10,12 +10,18 @@ import {
 } from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
 import { FileIcon, Trash2Icon, Upload } from "lucide-react";
-import { errAsync, okAsync } from "neverthrow";
+import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 
 export default function Home() {
   const dropzone = useOurDropZone({
     onDropFile: () => {
-      return okAsync("");
+      return ResultAsync.fromThrowable(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (Math.random() > 0.1) {
+          return ok("");
+        }
+        return err("Failed to upload file");
+      })().andThen((res) => res);
     },
   });
 

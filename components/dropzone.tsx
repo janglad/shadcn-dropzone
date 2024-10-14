@@ -392,7 +392,12 @@ export function DropzoneFileList<
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
 
   return (
-    <ol className={cn("flex flex-col gap-4 py-2 px-4", props.className)}>
+    <ol
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
+    >
       {context.fileStatuses.map((status) => (
         <DropzoneFileListItem key={status.id} fileStatus={status}>
           {props.render(status)}
@@ -410,15 +415,7 @@ interface DropzoneActionProps extends Omit<ButtonProps, "onClick"> {
 export function DropzoneAction(props: DropzoneActionProps) {
   const context = useDropzoneFileListContext();
   return (
-    <Button
-      onClick={(e) => {
-        e.stopPropagation();
-        context.onRemoveFile();
-      }}
-      type="button"
-      size="icon"
-      {...props}
-    >
+    <Button onClick={context.onRemoveFile} type="button" size="icon" {...props}>
       {props.children}
     </Button>
   );
