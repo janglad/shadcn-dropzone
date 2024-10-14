@@ -1,11 +1,14 @@
 import { cn } from "@/lib/utils";
 import { ResultAsync } from "neverthrow";
-import { createContext, useContext, useId, useReducer, useState } from "react";
+import {
+  createContext,
+  Fragment,
+  useContext,
+  useId,
+  useReducer,
+  useState,
+} from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
-
-const roundUpTo = (num: number, decimals: number) => {
-  return Math.ceil(num * 10 ** decimals) / 10 ** decimals;
-};
 
 export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
@@ -94,6 +97,9 @@ const getRootError = (
     maxFiles?: number;
   }
 ) => {
+  const roundUpTo = (num: number, decimals: number) => {
+    return Math.ceil(num * 10 ** decimals) / 10 ** decimals;
+  };
   const errors = errorCodes.map((error) => {
     switch (error) {
       case "file-invalid-type":
@@ -262,16 +268,13 @@ const useOurDropzoneContext = <
 };
 
 export function Dropzone<TUploadRes, TUploadError extends string | undefined>(
-  props: UseOurDropzoneProps<TUploadRes, TUploadError> & {
+  props: UseOurDropzoneReturn<TUploadRes, TUploadError> & {
     children: React.ReactNode;
   }
 ) {
   const { children, ...rest } = props;
-  const dropZone = useOurDropZone(rest);
   return (
-    <DropZoneContext.Provider value={dropZone}>
-      {children}
-    </DropZoneContext.Provider>
+    <DropZoneContext.Provider value={rest}>{children}</DropZoneContext.Provider>
   );
 }
 
@@ -306,6 +309,33 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         aria-invalid={context.isInvalid}
       />
       {props.children}
+    </div>
+  );
+}
+
+interface DropZoneFileListProps {
+  className?: string;
+  render: (
+    status: FileStatus<any, any>,
+    actions: { remove: (e: React.MouseEvent) => void }
+  ) => React.ReactNode;
+}
+
+export function DropzoneFileList(props: DropZoneFileListProps) {
+  const context = useOurDropzoneContext();
+
+  return (
+    <div className={cn(props.className)}>
+      {context.fileStatuses.map((status) => (
+        <Fragment key={status.id}>
+          {props.render(status, {
+            remove: (e: React.MouseEvent) => {
+              e.stopPropagation();
+              context.onRemoveFile(status.id);
+            },
+          })}
+        </Fragment>
+      ))}
     </div>
   );
 }

@@ -1,11 +1,23 @@
 "use client";
 
-import { Dropzone, DropZoneArea } from "@/components/dropzone";
+import {
+  Dropzone,
+  DropZoneArea,
+  DropzoneFileList,
+  useOurDropZone,
+} from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
+import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { errAsync, okAsync } from "neverthrow";
 
 export default function Home() {
+  const dropzone = useOurDropZone({
+    onDropFile: () => {
+      return okAsync("");
+    },
+  });
+
   return (
     <div>
       <LabeledDropzone
@@ -17,14 +29,17 @@ export default function Home() {
         }}
       />
 
-      <Dropzone
-        onDropFile={() => {
-          return okAsync("");
-        }}
-      >
+      <Dropzone {...dropzone}>
         <DropZoneArea className="flex flex-col items-center gap-2">
           <Upload />
           <p>Click or drag and drop files to upload them</p>
+          <DropzoneFileList
+            render={({ fileName }, { remove }) => (
+              <div>
+                {fileName} <Button onClick={remove}>Remove</Button>
+              </div>
+            )}
+          />
         </DropZoneArea>
       </Dropzone>
     </div>
