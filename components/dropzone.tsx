@@ -173,6 +173,7 @@ interface UseOurDropzoneReturn<
   getRootProps: ReturnType<typeof useDropzone>["getRootProps"];
   getInputProps: ReturnType<typeof useDropzone>["getInputProps"];
   onRemoveFile: (id: string) => Promise<void>;
+  onRetry: (id: string) => Promise<void>;
   fileStatuses: FileStatus<TUploadRes, TUploadError>[];
   isInvalid: boolean;
   isDragActive: boolean;
@@ -199,9 +200,37 @@ export function useOurDropZone<
 
   const isInvalid = fileErrors.length > 0 || rootError !== undefined;
 
+  const _uploadFile = async (file: File, id: string) => {
+    const result = await props.onDropFile(file);
+    if (result.isOk()) {
+      dispatch({
+        type: "update-status",
+        id,
+        status: "success",
+        result: result.value,
+      });
+    } else {
+      dispatch({
+        type: "update-status",
+        id,
+        status: "error",
+        error: result.error,
+      });
+    }
+  };
+
   const onRemoveFile = async (id: string) => {
     await props.onRemoveFile?.(id);
     dispatch({ type: "remove", id });
+  };
+
+  const onRetry = async (id: string) => {
+    dispatch({ type: "update-status", id, status: "pending" });
+    const fileStatus = fileStatuses.find((file) => file.id === id);
+    if (!fileStatus || fileStatus.status !== "error") {
+      return;
+    }
+    await _uploadFile(fileStatus.file, id);
   };
 
   const dropzone = useDropzone({
@@ -227,22 +256,7 @@ export function useOurDropZone<
       const onDropFilePromises = slicedFiles.map(async (file) => {
         const id = crypto.randomUUID();
         dispatch({ type: "add", fileName: file.name, file, id });
-        const result = await props.onDropFile(file);
-        if (result.isOk()) {
-          dispatch({
-            type: "update-status",
-            id,
-            status: "success",
-            result: result.value,
-          });
-        } else {
-          dispatch({
-            type: "update-status",
-            id,
-            status: "error",
-            error: result.error,
-          });
-        }
+        await _uploadFile(file, id);
       });
 
       await Promise.all(onDropFilePromises);
@@ -262,6 +276,7 @@ export function useOurDropZone<
     inputId,
     messageId,
     onRemoveFile,
+    onRetry,
     fileStatuses: fileStatuses as FileStatus<TUploadRes, TUploadError>[],
     isInvalid,
     fileErrors: fileErrors as TUploadError[],
@@ -275,6 +290,7 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   getRootProps: () => ({} as never),
   getInputProps: () => ({} as never),
   onRemoveFile: async () => {},
+  onRetry: async () => {},
   fileStatuses: [],
   isInvalid: false,
   isDragActive: false,
@@ -345,6 +361,7 @@ interface DropzoneFileListContext<
   TUploadError extends string | undefined
 > {
   onRemoveFile: () => Promise<void>;
+  onRetry: () => Promise<void>;
   fileStatus: FileStatus<TUploadRes, TUploadError>;
 }
 
@@ -352,6 +369,7 @@ const DropzoneFileListContext = createContext<
   DropzoneFileListContext<any, any>
 >({
   onRemoveFile: async () => {},
+  onRetry: async () => {},
   fileStatus: {} as FileStatus<any, any>,
 });
 
@@ -368,9 +386,10 @@ export function DropzoneFileListItem<
 }) {
   const context = useOurDropzoneContext();
   const onRemoveFile = () => context.onRemoveFile(props.fileStatus.id);
+  const onRetry = () => context.onRetry(props.fileStatus.id);
   return (
     <DropzoneFileListContext.Provider
-      value={{ onRemoveFile, fileStatus: props.fileStatus }}
+      value={{ onRemoveFile, onRetry, fileStatus: props.fileStatus }}
     >
       {props.children}
     </DropzoneFileListContext.Provider>
@@ -408,14 +427,23 @@ export function DropzoneFileList<
 }
 
 interface DropzoneActionProps extends Omit<ButtonProps, "onClick"> {
-  action: "remove";
+  action: "remove" | "retry";
   children: React.ReactNode;
 }
 
 export function DropzoneAction(props: DropzoneActionProps) {
   const context = useDropzoneFileListContext();
+
+  const onClick = () => {
+    if (props.action === "remove") {
+      context.onRemoveFile();
+    } else if (props.action === "retry") {
+      context.onRetry();
+    }
+  };
+
   return (
-    <Button onClick={context.onRemoveFile} type="button" size="icon" {...props}>
+    <Button onClick={onClick} type="button" size="icon" {...props}>
       {props.children}
     </Button>
   );

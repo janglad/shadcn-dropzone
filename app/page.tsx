@@ -9,7 +9,7 @@ import {
   useOurDropZone,
 } from "@/components/dropzone";
 import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
-import { FileIcon, Trash2Icon, Upload } from "lucide-react";
+import { FileIcon, RotateCcwIcon, Trash2Icon, Upload } from "lucide-react";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
     <div>
       <LabeledDropzone
         onDropFile={() => {
-          if (Math.random() > 0.1) {
+          if (Math.random() > 0.5) {
             return okAsync("");
           }
           return errAsync("Failed to upload file");
@@ -49,15 +49,27 @@ export default function Home() {
                     <FileIcon className="size-5 text-muted-foreground" />
                     {fileName}
                   </div>
-                  <DropzoneAction
-                    action="remove"
-                    variant="ghost"
-                    className="hover:border"
-                    type="button"
-                    size="icon"
-                  >
-                    <Trash2Icon className="size-4" />
-                  </DropzoneAction>
+                  {status === "error" ? (
+                    <DropzoneAction
+                      action="retry"
+                      variant="ghost"
+                      className="hover:border"
+                      type="button"
+                      size="icon"
+                    >
+                      <RotateCcwIcon className="size-4" />
+                    </DropzoneAction>
+                  ) : (
+                    <DropzoneAction
+                      action="remove"
+                      variant="ghost"
+                      className="hover:border"
+                      type="button"
+                      size="icon"
+                    >
+                      <Trash2Icon className="size-4" />
+                    </DropzoneAction>
+                  )}
                 </div>
                 <InfiniteProgress status={status} />
                 <div className="flex justify-between">
