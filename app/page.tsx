@@ -2,15 +2,14 @@
 
 import {
   Dropzone,
-  DropzoneAction,
   DropZoneArea,
+  DropzoneFileAction,
   DropzoneFileList,
+  DropzoneFileMessage,
   InfiniteProgress,
   useOurDropZone,
 } from "@/components/dropzone";
-import { LabeledDropzone } from "@/components/labeled-dropzone/labeled-dropzone";
 import { FileIcon, RotateCcwIcon, Trash2Icon, Upload } from "lucide-react";
-import { errAsync, okAsync } from "neverthrow";
 
 export default function Home() {
   const dropzone = useOurDropZone({
@@ -35,16 +34,7 @@ export default function Home() {
   });
 
   return (
-    <div>
-      <LabeledDropzone
-        onDropFile={() => {
-          if (Math.random() > 0.5) {
-            return okAsync("");
-          }
-          return errAsync("Failed to upload file");
-        }}
-      />
-
+    <main className="container">
       <Dropzone {...dropzone}>
         <DropZoneArea className="flex flex-col items-center gap-2">
           <Upload />
@@ -59,7 +49,7 @@ export default function Home() {
                     {fileName}
                   </div>
                   {status === "error" ? (
-                    <DropzoneAction
+                    <DropzoneFileAction
                       action="retry"
                       variant="ghost"
                       className="hover:border"
@@ -67,9 +57,9 @@ export default function Home() {
                       size="icon"
                     >
                       <RotateCcwIcon className="size-4" />
-                    </DropzoneAction>
+                    </DropzoneFileAction>
                   ) : (
-                    <DropzoneAction
+                    <DropzoneFileAction
                       action="remove"
                       variant="ghost"
                       className="hover:border"
@@ -77,21 +67,19 @@ export default function Home() {
                       size="icon"
                     >
                       <Trash2Icon className="size-4" />
-                    </DropzoneAction>
+                    </DropzoneFileAction>
                   )}
                 </div>
                 <InfiniteProgress status={status} />
                 <div className="flex justify-between">
                   <p>{Math.round(file.size / 1024 / 1024)} MB</p>
-                  {error !== undefined && (
-                    <p className="text-sm text-destructive">{error}</p>
-                  )}
+                  <DropzoneFileMessage />
                 </div>
               </li>
             )}
           />
         </DropZoneArea>
       </Dropzone>
-    </div>
+    </main>
   );
 }

@@ -434,12 +434,12 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   );
 }
 
-interface DropzoneActionProps extends Omit<ButtonProps, "onClick"> {
+interface DropzoneFileActionProps extends Omit<ButtonProps, "onClick"> {
   action: "remove" | "retry";
   children: React.ReactNode;
 }
 
-export function DropzoneAction(props: DropzoneActionProps) {
+export function DropzoneFileAction(props: DropzoneFileActionProps) {
   const context = useDropzoneFileListContext();
 
   const onClick = () => {
@@ -454,5 +454,29 @@ export function DropzoneAction(props: DropzoneActionProps) {
     <Button onClick={onClick} type="button" size="icon" {...props}>
       {props.children}
     </Button>
+  );
+}
+
+interface DropzoneFileMessageProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
+  const context = useDropzoneFileListContext();
+
+  const body =
+    context.fileStatus.status === "error"
+      ? String(context.fileStatus.error)
+      : props.children;
+  return (
+    <p
+      className={cn(
+        "h-5 text-[0.8rem] font-medium text-destructive",
+        props.className
+      )}
+    >
+      {body}
+    </p>
   );
 }
