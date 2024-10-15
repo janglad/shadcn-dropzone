@@ -33,7 +33,6 @@ export default function Home() {
       return error.message;
     },
     maxRetryCount: 3,
-    autoRetry: true,
   });
 
   return (

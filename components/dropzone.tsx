@@ -411,6 +411,7 @@ interface DropzoneFileListContext<TUploadRes, TUploadError> {
   onRemoveFile: () => Promise<void>;
   onRetry: () => Promise<void>;
   fileStatus: FileStatus<TUploadRes, TUploadError>;
+  canRetry: boolean;
 }
 
 const DropzoneFileListContext = createContext<
@@ -419,6 +420,7 @@ const DropzoneFileListContext = createContext<
   onRemoveFile: async () => {},
   onRetry: async () => {},
   fileStatus: {} as FileStatus<unknown, unknown>,
+  canRetry: false,
 });
 
 const useDropzoneFileListContext = () => {
@@ -434,7 +436,12 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(props: {
   const onRetry = () => context.onRetry(props.fileStatus.id);
   return (
     <DropzoneFileListContext.Provider
-      value={{ onRemoveFile, onRetry, fileStatus: props.fileStatus }}
+      value={{
+        onRemoveFile,
+        onRetry,
+        fileStatus: props.fileStatus,
+        canRetry: context.canRetry(props.fileStatus.id),
+      }}
     >
       {props.children}
     </DropzoneFileListContext.Provider>
@@ -483,8 +490,20 @@ interface DropzoneRetryFileProps extends ButtonProps {}
 export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
   const context = useDropzoneFileListContext();
 
+  const canRetry = context.canRetry;
+
   return (
-    <Button onClick={context.onRetry} type="button" size="icon" {...props}>
+    <Button
+      aria-disabled={!canRetry}
+      onClick={context.onRetry}
+      type="button"
+      size="icon"
+      {...props}
+      className={cn(
+        "aria-disabled:opacity-50 aria-disabled:pointer-events-none",
+        props.className
+      )}
+    >
       {props.children}
     </Button>
   );
