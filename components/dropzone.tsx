@@ -53,6 +53,7 @@ export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
   fileName: string;
   file: File;
+  tries: number;
 } & (
   | {
       status: "pending";
@@ -98,6 +99,7 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
           fileName: action.fileName,
           file: action.file,
           status: "pending",
+          tries: 1,
         },
       ];
     case "remove":
@@ -110,6 +112,10 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
           return {
             ...fileStatus,
             ...rest,
+            tries:
+              action.status === "pending"
+                ? fileStatus.tries + 1
+                : fileStatus.tries,
           } as FileStatus<TUploadRes, TUploadError>;
         }
         return fileStatus;
@@ -179,6 +185,8 @@ type UseOurDropzoneProps<TUploadRes, TUploadError> = {
   onFileUploadError?: (error: TUploadError) => void;
   onAllUploaded?: () => void;
   onRootError?: (error: string) => void;
+  maxRetryCount?: number;
+  autoRetry?: boolean;
   dropzoneProps?: {
     accept?: Accept;
     minSize?: number;
@@ -352,13 +360,13 @@ export function DropZoneArea(props: DropZoneAreaProps) {
   return (
     <div
       {...context.getRootProps()}
+      {...rest}
       className={cn(
         "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         context.isDragActive && "animate-pulse bg-black/5",
         context.isInvalid && "border-destructive",
         rest.className
       )}
-      {...rest}
     >
       <input
         {...context.getInputProps()}
