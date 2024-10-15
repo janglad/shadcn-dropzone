@@ -40,25 +40,30 @@ export default function Home() {
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
-            className="w-full"
+            style={{
+              height: `${dropzone.fileStatuses.length * 112}px`,
+            }}
+            className="w-full transition-all duration-300 overflow-hidden"
             render={({ fileName, status, file, error }) => (
-              <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2">
+              <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 h-[112px] justify-center">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">
                     <FileIcon className="size-5 text-muted-foreground" />
                     {fileName}
                   </div>
-                  {status === "error" ? (
-                    <DropzoneFileAction
-                      action="retry"
-                      variant="ghost"
-                      className="hover:border"
-                      type="button"
-                      size="icon"
-                    >
-                      <RotateCcwIcon className="size-4" />
-                    </DropzoneFileAction>
-                  ) : (
+                  <div className="flex items-center gap-2">
+                    {status === "error" && (
+                      <DropzoneFileAction
+                        action="retry"
+                        variant="ghost"
+                        className="hover:border"
+                        type="button"
+                        size="icon"
+                      >
+                        <RotateCcwIcon className="size-4" />
+                      </DropzoneFileAction>
+                    )}
+
                     <DropzoneFileAction
                       action="remove"
                       variant="ghost"
@@ -68,7 +73,7 @@ export default function Home() {
                     >
                       <Trash2Icon className="size-4" />
                     </DropzoneFileAction>
-                  )}
+                  </div>
                 </div>
                 <InfiniteProgress status={status} />
                 <div className="flex justify-between">

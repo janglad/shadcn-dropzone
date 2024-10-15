@@ -339,12 +339,10 @@ export function Dropzone<TUploadRes, TUploadError>(
   );
 }
 
-interface DropZoneAreaProps {
-  children: React.ReactNode;
-  className?: string;
-}
+interface DropZoneAreaProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function DropZoneArea(props: DropZoneAreaProps) {
+  const { children, ...rest } = props;
   const context = useOurDropzoneContext();
 
   if (!context) {
@@ -358,8 +356,9 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         context.isDragActive && "animate-pulse bg-black/5",
         context.isInvalid && "border-destructive",
-        props.className
+        rest.className
       )}
+      {...rest}
     >
       <input
         {...context.getInputProps()}
@@ -369,7 +368,7 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         aria-describedby={context.isInvalid ? context.messageId : undefined}
         aria-invalid={context.isInvalid}
       />
-      {props.children}
+      {children}
     </div>
   );
 }
@@ -408,8 +407,8 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(props: {
   );
 }
 
-interface DropZoneFileListProps<TUploadRes, TUploadError> {
-  className?: string;
+interface DropZoneFileListProps<TUploadRes, TUploadError>
+  extends React.OlHTMLAttributes<HTMLOListElement> {
   render: (status: FileStatus<TUploadRes, TUploadError>) => React.ReactNode;
 }
 
@@ -420,10 +419,11 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
 
   return (
     <ol
+      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
+      {...props}
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
     >
       {context.fileStatuses.map((status) => (
         <DropzoneFileListItem key={status.id} fileStatus={status}>
@@ -434,9 +434,8 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   );
 }
 
-interface DropzoneFileActionProps extends Omit<ButtonProps, "onClick"> {
+interface DropzoneFileActionProps extends ButtonProps {
   action: "remove" | "retry";
-  children: React.ReactNode;
 }
 
 export function DropzoneFileAction(props: DropzoneFileActionProps) {
@@ -457,24 +456,24 @@ export function DropzoneFileAction(props: DropzoneFileActionProps) {
   );
 }
 
-interface DropzoneFileMessageProps {
-  className?: string;
-  children?: React.ReactNode;
-}
+interface DropzoneFileMessageProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
 
 export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
+  const { children, ...rest } = props;
   const context = useDropzoneFileListContext();
 
   const body =
     context.fileStatus.status === "error"
       ? String(context.fileStatus.error)
-      : props.children;
+      : children;
   return (
     <p
       className={cn(
         "h-5 text-[0.8rem] font-medium text-destructive",
-        props.className
+        rest.className
       )}
+      {...rest}
     >
       {body}
     </p>
