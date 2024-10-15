@@ -206,6 +206,7 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   getInputProps: ReturnType<typeof useDropzone>["getInputProps"];
   onRemoveFile: (id: string) => Promise<void>;
   onRetry: (id: string) => Promise<void>;
+  canRetry: (id: string) => boolean;
   fileStatuses: FileStatus<TUploadRes, TUploadError>[];
   isInvalid: boolean;
   isDragActive: boolean;
@@ -229,15 +230,26 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 
   const isInvalid = fileErrors.length > 0 || rootError !== undefined;
 
-  const _uploadFile = async (file: File, id: string) => {
+  const _uploadFile = async (file: File, id: string, tries = 0) => {
     const result = await props.onDropFile(file);
 
-    if (result.status === "error" && props.shapeUploadError !== undefined) {
+    if (result.status === "error") {
+      if (
+        props.autoRetry === true &&
+        tries < (props.maxRetryCount ?? Infinity)
+      ) {
+        dispatch({ type: "update-status", id, status: "pending" });
+        return _uploadFile(file, id, tries + 1);
+      }
+
       dispatch({
         type: "update-status",
         id,
         status: "error",
-        error: props.shapeUploadError(result.error),
+        error:
+          props.shapeUploadError !== undefined
+            ? props.shapeUploadError(result.error)
+            : result.error,
       });
       return;
     }
@@ -253,7 +265,18 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     dispatch({ type: "remove", id });
   };
 
+  const canRetry = (id: string) => {
+    const fileStatus = fileStatuses.find((file) => file.id === id);
+    return (
+      fileStatus?.status === "error" &&
+      fileStatus.tries < (props.maxRetryCount ?? Infinity)
+    );
+  };
+
   const onRetry = async (id: string) => {
+    if (!canRetry(id)) {
+      return;
+    }
     dispatch({ type: "update-status", id, status: "pending" });
     const fileStatus = fileStatuses.find((file) => file.id === id);
     if (!fileStatus || fileStatus.status !== "error") {
@@ -306,6 +329,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     messageId,
     onRemoveFile,
     onRetry,
+    canRetry,
     fileStatuses: fileStatuses as FileStatus<TUploadRes, TUploadError>[],
     isInvalid,
     fileErrors: fileErrors as TUploadError[],
@@ -320,6 +344,7 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   getInputProps: () => ({} as never),
   onRemoveFile: async () => {},
   onRetry: async () => {},
+  canRetry: () => false,
   fileStatuses: [],
   isInvalid: false,
   isDragActive: false,

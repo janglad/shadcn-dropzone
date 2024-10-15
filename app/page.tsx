@@ -15,7 +15,7 @@ export default function Home() {
   const dropzone = useOurDropZone({
     onDropFile: async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (Math.random() > 0.5) {
+      if (Math.random() > 90) {
         return {
           status: "success",
           result: "success",
@@ -31,6 +31,8 @@ export default function Home() {
     shapeUploadError: (error) => {
       return error.message;
     },
+    maxRetryCount: 3,
+    autoRetry: true,
   });
 
   return (
