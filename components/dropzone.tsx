@@ -6,18 +6,14 @@ import { Button, ButtonProps } from "./ui/button";
 type OurDropzoneResult<TUploadRes, TUploadError> =
   | {
       status: "pending";
-      result?: undefined;
-      error?: undefined;
     }
   | {
       status: "error";
-      result?: undefined;
       error: TUploadError;
     }
   | {
       status: "success";
       result: TUploadRes;
-      error?: undefined;
     };
 
 interface InfiniteProgressProps {
@@ -57,7 +53,23 @@ export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
   fileName: string;
   file: File;
-} & OurDropzoneResult<TUploadRes, TUploadError>;
+} & (
+  | {
+      status: "pending";
+      result?: undefined;
+      error?: undefined;
+    }
+  | {
+      status: "error";
+      error: TUploadError;
+      result?: undefined;
+    }
+  | {
+      status: "success";
+      result: TUploadRes;
+      error?: undefined;
+    }
+);
 
 const fileStatusReducer = <TUploadRes, TUploadError>(
   state: FileStatus<TUploadRes, TUploadError>[],
@@ -93,11 +105,11 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
     case "update-status":
       return state.map((fileStatus) => {
         if (fileStatus.id === action.id) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id, type, ...rest } = action;
           return {
             ...fileStatus,
-            status: action.status,
-            error: action.error,
-            result: action.result,
+            ...rest,
           } as FileStatus<TUploadRes, TUploadError>;
         }
         return fileStatus;
@@ -156,7 +168,7 @@ const getRootError = (
   return joinedErrors.charAt(0).toUpperCase() + joinedErrors.slice(1);
 };
 
-interface UseOurDropzoneProps<TUploadRes, TUploadError> {
+type UseOurDropzoneProps<TUploadRes, TUploadError> = {
   onDropFile: (
     file: File
   ) => Promise<
@@ -173,7 +185,13 @@ interface UseOurDropzoneProps<TUploadRes, TUploadError> {
     maxSize?: number;
     maxFiles?: number;
   };
-}
+} & (TUploadError extends string
+  ? {
+      shapeUploadError?: (error: NoInfer<TUploadError>) => string | void;
+    }
+  : {
+      shapeUploadError: (error: NoInfer<TUploadError>) => string | void;
+    });
 
 interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   getRootProps: ReturnType<typeof useDropzone>["getRootProps"];
@@ -206,6 +224,15 @@ export function useOurDropZone<TUploadRes, TUploadError>(
   const _uploadFile = async (file: File, id: string) => {
     const result = await props.onDropFile(file);
 
+    if (result.status === "error" && props.shapeUploadError !== undefined) {
+      dispatch({
+        type: "update-status",
+        id,
+        status: "error",
+        error: props.shapeUploadError(result.error),
+      });
+      return;
+    }
     dispatch({
       type: "update-status",
       id,

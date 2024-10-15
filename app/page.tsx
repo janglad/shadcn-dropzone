@@ -24,8 +24,13 @@ export default function Home() {
       }
       return {
         status: "error",
-        error: "Failed to upload file",
+        error: {
+          message: "Failed to upload file",
+        },
       };
+    },
+    shapeUploadError: (error) => {
+      return error.message;
     },
   });
 
