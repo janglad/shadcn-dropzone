@@ -3,9 +3,10 @@
 import {
   Dropzone,
   DropZoneArea,
-  DropzoneFileAction,
   DropzoneFileList,
   DropzoneFileMessage,
+  DropzoneRemoveFile,
+  DropzoneRetryFile,
   InfiniteProgress,
   useOurDropZone,
 } from "@/components/dropzone";
@@ -55,26 +56,24 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2">
                     {status === "error" && (
-                      <DropzoneFileAction
-                        action="retry"
+                      <DropzoneRetryFile
                         variant="ghost"
                         className="hover:border"
                         type="button"
                         size="icon"
                       >
                         <RotateCcwIcon className="size-4" />
-                      </DropzoneFileAction>
+                      </DropzoneRetryFile>
                     )}
 
-                    <DropzoneFileAction
-                      action="remove"
+                    <DropzoneRemoveFile
                       variant="ghost"
                       className="hover:border"
                       type="button"
                       size="icon"
                     >
                       <Trash2Icon className="size-4" />
-                    </DropzoneFileAction>
+                    </DropzoneRemoveFile>
                     <p>tries: {tries}</p>
                   </div>
                 </div>

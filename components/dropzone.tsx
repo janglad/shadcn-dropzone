@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { cn } from "@/lib/utils";
 import { createContext, useContext, useId, useReducer, useState } from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
@@ -467,23 +468,23 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   );
 }
 
-interface DropzoneFileActionProps extends ButtonProps {
-  action: "remove" | "retry";
-}
+interface DropzoneRemoveFileProps extends ButtonProps {}
 
-export function DropzoneFileAction(props: DropzoneFileActionProps) {
+export function DropzoneRemoveFile(props: DropzoneRemoveFileProps) {
+  const context = useDropzoneFileListContext();
+  return (
+    <Button onClick={context.onRemoveFile} type="button" size="icon" {...props}>
+      {props.children}
+    </Button>
+  );
+}
+interface DropzoneRetryFileProps extends ButtonProps {}
+
+export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
   const context = useDropzoneFileListContext();
 
-  const onClick = () => {
-    if (props.action === "remove") {
-      context.onRemoveFile();
-    } else if (props.action === "retry") {
-      context.onRetry();
-    }
-  };
-
   return (
-    <Button onClick={onClick} type="button" size="icon" {...props}>
+    <Button onClick={context.onRetry} type="button" size="icon" {...props}>
       {props.children}
     </Button>
   );
