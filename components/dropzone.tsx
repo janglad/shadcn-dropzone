@@ -387,6 +387,8 @@ export function DropZoneArea(props: DropZoneAreaProps) {
     <div
       {...context.getRootProps()}
       {...rest}
+      aria-label="dropzone"
+      role="button"
       className={cn(
         "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         context.isDragActive && "animate-pulse bg-black/5",
@@ -498,6 +500,7 @@ export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
   return (
     <Button
       aria-disabled={!canRetry}
+      aria-label="retry"
       onClick={context.onRetry}
       type="button"
       size="icon"
