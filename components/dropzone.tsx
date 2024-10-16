@@ -396,7 +396,10 @@ export function DropZoneArea(props: DropZoneAreaProps) {
     >
       <input
         {...context.getInputProps()}
-        className="sr-only !block"
+        style={{
+          display: "block",
+        }}
+        className="sr-only"
         tabIndex={0}
         id={context.inputId}
         aria-describedby={context.isInvalid ? context.messageId : undefined}

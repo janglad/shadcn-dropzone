@@ -46,7 +46,7 @@ export default function Home() {
               height: `${dropzone.fileStatuses.length * 112}px`,
             }}
             className="w-full transition-all duration-300 overflow-hidden"
-            render={({ fileName, status, file, error, tries }) => (
+            render={({ fileName, status, file, tries }) => (
               <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 h-[112px] justify-center">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">
