@@ -432,27 +432,6 @@ const useDropzoneFileListContext = () => {
   return useContext(DropzoneFileListContext);
 };
 
-export function DropzoneFileListItem<TUploadRes, TUploadError>(props: {
-  children: React.ReactNode;
-  fileStatus: FileStatus<TUploadRes, TUploadError>;
-}) {
-  const context = useOurDropzoneContext();
-  const onRemoveFile = () => context.onRemoveFile(props.fileStatus.id);
-  const onRetry = () => context.onRetry(props.fileStatus.id);
-  return (
-    <DropzoneFileListContext.Provider
-      value={{
-        onRemoveFile,
-        onRetry,
-        fileStatus: props.fileStatus,
-        canRetry: context.canRetry(props.fileStatus.id),
-      }}
-    >
-      {props.children}
-    </DropzoneFileListContext.Provider>
-  );
-}
-
 interface DropZoneFileListProps<TUploadRes, TUploadError>
   extends React.OlHTMLAttributes<HTMLOListElement> {
   render: (status: FileStatus<TUploadRes, TUploadError>) => React.ReactNode;
@@ -462,21 +441,45 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   props: DropZoneFileListProps<TUploadRes, TUploadError>
 ) {
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
-
+  const { render, ...rest } = props;
   return (
     <ol
       className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
-      {...props}
+      {...rest}
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      {context.fileStatuses.map((status) => (
-        <DropzoneFileListItem key={status.id} fileStatus={status}>
-          {props.render(status)}
-        </DropzoneFileListItem>
-      ))}
+      {context.fileStatuses.map((status) => render(status))}
     </ol>
+  );
+}
+
+interface DropzoneFileListItemProps<TUploadRes, TUploadError>
+  extends React.LiHTMLAttributes<HTMLLIElement> {
+  file: FileStatus<TUploadRes, TUploadError>;
+}
+
+export function DropzoneFileListItem<TUploadRes, TUploadError>(
+  props: DropzoneFileListItemProps<TUploadRes, TUploadError>
+) {
+  const context = useOurDropzoneContext<TUploadRes, TUploadError>();
+  const onRemoveFile = () => context.onRemoveFile(props.file.id);
+  const onRetry = () => context.onRetry(props.file.id);
+  return (
+    <DropzoneFileListContext.Provider
+      value={{
+        onRemoveFile,
+        onRetry,
+        fileStatus: props.file,
+        canRetry: context.canRetry(props.file.id),
+      }}
+      key={props.file.id}
+    >
+      <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center">
+        {props.children}
+      </li>
+    </DropzoneFileListContext.Provider>
   );
 }
 

@@ -4,6 +4,7 @@ import {
   Dropzone,
   DropZoneArea,
   DropzoneFileList,
+  DropzoneFileListItem,
   DropzoneFileMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
@@ -46,15 +47,15 @@ export default function Home() {
               height: `${dropzone.fileStatuses.length * 112}px`,
             }}
             className="w-full transition-all duration-300 overflow-hidden"
-            render={({ fileName, status, file, tries }) => (
-              <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 h-[112px] justify-center">
+            render={(file) => (
+              <DropzoneFileListItem file={file} className=" h-[112px]">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">
                     <FileIcon className="size-5 text-muted-foreground" />
-                    {fileName}
+                    {file.fileName}
                   </div>
                   <div className="flex items-center gap-2">
-                    {status === "error" && (
+                    {file.status === "error" && (
                       <DropzoneRetryFile
                         variant="ghost"
                         className="hover:border"
@@ -73,15 +74,15 @@ export default function Home() {
                     >
                       <Trash2Icon className="size-4" />
                     </DropzoneRemoveFile>
-                    <p>tries: {tries}</p>
+                    <p>tries: {file.tries}</p>
                   </div>
                 </div>
-                <InfiniteProgress status={status} />
+                <InfiniteProgress status={file.status} />
                 <div className="flex justify-between">
-                  <p>{Math.round(file.size / 1024 / 1024)} MB</p>
+                  <p>{Math.round(file.file.size / 1024 / 1024)} MB</p>
                   <DropzoneFileMessage />
                 </div>
-              </li>
+              </DropzoneFileListItem>
             )}
           />
         </DropZoneArea>
