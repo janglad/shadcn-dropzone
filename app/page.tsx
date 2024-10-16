@@ -48,7 +48,11 @@ export default function Home() {
             }}
             className="w-full transition-all duration-300 overflow-hidden"
             render={(file) => (
-              <DropzoneFileListItem file={file} className=" h-[112px]">
+              <DropzoneFileListItem
+                key={file.id}
+                file={file}
+                className=" h-[112px]"
+              >
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">
                     <FileIcon className="size-5 text-muted-foreground" />

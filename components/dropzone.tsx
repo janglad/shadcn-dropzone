@@ -214,16 +214,21 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   fileErrors: TUploadError[];
   rootError: string | undefined;
   inputId: string;
-  messageId: string;
+  rootMessageId: string;
+  messageIds: string[];
 }
 
 export function useOurDropZone<TUploadRes, TUploadError>(
   props: UseOurDropzoneProps<TUploadRes, TUploadError>
 ): UseOurDropzoneReturn<TUploadRes, TUploadError> {
   const inputId = useId();
-  const messageId = useId();
+  const rootMessageId = useId();
   const [rootError, setRootError] = useState<string | undefined>(undefined);
   const [fileStatuses, dispatch] = useReducer(fileStatusReducer, []);
+
+  const messageIds = fileStatuses
+    .filter((file) => file.status === "error")
+    .map((file) => `${inputId}-${file.fileName}-message`);
 
   const fileErrors = fileStatuses
     .filter((file) => file.status === "error")
@@ -327,7 +332,8 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     getRootProps: dropzone.getRootProps,
     getInputProps: dropzone.getInputProps,
     inputId,
-    messageId,
+    rootMessageId,
+    messageIds,
     onRemoveFile,
     onRetry,
     canRetry,
@@ -352,7 +358,8 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   fileErrors: [],
   rootError: undefined,
   inputId: "",
-  messageId: "",
+  rootMessageId: "",
+  messageIds: [],
 });
 
 const useOurDropzoneContext = <TUploadRes, TUploadError>() => {
@@ -404,7 +411,11 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         className="sr-only"
         tabIndex={0}
         id={context.inputId}
-        aria-describedby={context.isInvalid ? context.messageId : undefined}
+        aria-describedby={
+          context.isInvalid
+            ? [context.rootMessageId, ...context.messageIds].join(" ")
+            : undefined
+        }
         aria-invalid={context.isInvalid}
       />
       {children}
@@ -417,6 +428,8 @@ interface DropzoneFileListContext<TUploadRes, TUploadError> {
   onRetry: () => Promise<void>;
   fileStatus: FileStatus<TUploadRes, TUploadError>;
   canRetry: boolean;
+  dropzoneId: string;
+  messageId: string;
 }
 
 const DropzoneFileListContext = createContext<
@@ -426,6 +439,8 @@ const DropzoneFileListContext = createContext<
   onRetry: async () => {},
   fileStatus: {} as FileStatus<unknown, unknown>,
   canRetry: false,
+  dropzoneId: "",
+  messageId: "",
 });
 
 const useDropzoneFileListContext = () => {
@@ -444,6 +459,7 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   const { render, ...rest } = props;
   return (
     <ol
+      aria-label="dropzone-file-list"
       className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
       {...rest}
       onClick={(e) => {
@@ -466,6 +482,7 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
   const onRemoveFile = () => context.onRemoveFile(props.file.id);
   const onRetry = () => context.onRetry(props.file.id);
+  const messageId = `${context.inputId}-${props.file.fileName}-message`;
   return (
     <DropzoneFileListContext.Provider
       value={{
@@ -473,10 +490,15 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
         onRetry,
         fileStatus: props.file,
         canRetry: context.canRetry(props.file.id),
+        dropzoneId: context.inputId,
+        messageId,
       }}
-      key={props.file.id}
     >
-      <li className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center">
+      <li
+        aria-label="dropzone-file-list-item"
+        aria-describedby={messageId}
+        className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center"
+      >
         {props.children}
       </li>
     </DropzoneFileListContext.Provider>
@@ -531,6 +553,7 @@ export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
       : children;
   return (
     <p
+      id={context.messageId}
       className={cn(
         "h-5 text-[0.8rem] font-medium text-destructive",
         rest.className
