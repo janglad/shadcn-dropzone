@@ -24,10 +24,10 @@ type PlaygroundFormInput = z.input<typeof playgroundFormSchema>;
 type PlaygroundFormOutput = z.output<typeof playgroundFormSchema>;
 
 const playgroundFormDefaultValues: PlaygroundFormInput = {
-  successRate: 100,
-  maxFiles: 1,
-  maxFileSize: 100,
-  autoRetry: true,
+  successRate: 50,
+  maxFiles: 2,
+  maxFileSize: 10,
+  autoRetry: false,
   maxRetryCount: 3,
 };
 
