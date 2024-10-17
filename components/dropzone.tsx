@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { cn } from "@/lib/utils";
-import { createContext, useContext, useId, useReducer, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useId,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
 
@@ -220,90 +228,113 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
 export function useOurDropZone<TUploadRes, TUploadError>(
   props: UseOurDropzoneProps<TUploadRes, TUploadError>,
 ): UseOurDropzoneReturn<TUploadRes, TUploadError> {
+  const {
+    onDropFile: pOnDropFile,
+    onRemoveFile: pOnRemoveFile,
+    shapeUploadError: pShapeUploadError,
+    onFileUploaded: pOnFileUploaded,
+    onFileUploadError: pOnFileUploadError,
+    onAllUploaded: pOnAllUploaded,
+    onRootError: pOnRootError,
+    maxRetryCount,
+    autoRetry,
+    dropzoneProps,
+  } = props;
+
   const inputId = useId();
   const rootMessageId = `${inputId}-root-message`;
   const [rootError, setRootError] = useState<string | undefined>(undefined);
   const [fileStatuses, dispatch] = useReducer(fileStatusReducer, []);
 
-  const isInvalid =
-    fileStatuses.filter((file) => file.status === "error").length > 0 ||
-    rootError !== undefined;
+  const isInvalid = useMemo(() => {
+    return (
+      fileStatuses.filter((file) => file.status === "error").length > 0 ||
+      rootError !== undefined
+    );
+  }, [fileStatuses, rootError]);
 
-  const _uploadFile = async (file: File, id: string, tries = 0) => {
-    const result = await props.onDropFile(file);
+  const _uploadFile = useCallback(
+    async (file: File, id: string, tries = 0) => {
+      const result = await pOnDropFile(file);
 
-    if (result.status === "error") {
-      if (
-        props.autoRetry === true &&
-        tries < (props.maxRetryCount ?? Infinity)
-      ) {
-        dispatch({ type: "update-status", id, status: "pending" });
-        return _uploadFile(file, id, tries + 1);
+      if (result.status === "error") {
+        if (autoRetry === true && tries < (maxRetryCount ?? Infinity)) {
+          dispatch({ type: "update-status", id, status: "pending" });
+          return _uploadFile(file, id, tries + 1);
+        }
+
+        dispatch({
+          type: "update-status",
+          id,
+          status: "error",
+          error:
+            pShapeUploadError !== undefined
+              ? pShapeUploadError(result.error)
+              : result.error,
+        });
+        return;
       }
-
       dispatch({
         type: "update-status",
         id,
-        status: "error",
-        error:
-          props.shapeUploadError !== undefined
-            ? props.shapeUploadError(result.error)
-            : result.error,
+        ...result,
       });
-      return;
-    }
-    dispatch({
-      type: "update-status",
-      id,
-      ...result,
-    });
-  };
+    },
+    [autoRetry, maxRetryCount, pOnDropFile, pShapeUploadError],
+  );
 
-  const onRemoveFile = async (id: string) => {
-    await props.onRemoveFile?.(id);
-    dispatch({ type: "remove", id });
-  };
+  const onRemoveFile = useCallback(
+    async (id: string) => {
+      await pOnRemoveFile?.(id);
+      dispatch({ type: "remove", id });
+    },
+    [pOnRemoveFile],
+  );
 
-  const canRetry = (id: string) => {
-    const fileStatus = fileStatuses.find((file) => file.id === id);
-    return (
-      fileStatus?.status === "error" &&
-      fileStatus.tries < (props.maxRetryCount ?? Infinity)
-    );
-  };
+  const canRetry = useCallback(
+    (id: string) => {
+      const fileStatus = fileStatuses.find((file) => file.id === id);
+      return (
+        fileStatus?.status === "error" &&
+        fileStatus.tries < (maxRetryCount ?? Infinity)
+      );
+    },
+    [fileStatuses, maxRetryCount],
+  );
 
-  const onRetry = async (id: string) => {
-    if (!canRetry(id)) {
-      return;
-    }
-    dispatch({ type: "update-status", id, status: "pending" });
-    const fileStatus = fileStatuses.find((file) => file.id === id);
-    if (!fileStatus || fileStatus.status !== "error") {
-      return;
-    }
-    await _uploadFile(fileStatus.file, id);
-  };
+  const onRetry = useCallback(
+    async (id: string) => {
+      if (!canRetry(id)) {
+        return;
+      }
+      dispatch({ type: "update-status", id, status: "pending" });
+      const fileStatus = fileStatuses.find((file) => file.id === id);
+      if (!fileStatus || fileStatus.status !== "error") {
+        return;
+      }
+      await _uploadFile(fileStatus.file, id);
+    },
+    [canRetry, fileStatuses, _uploadFile],
+  );
 
   const getFileMessageId = (id: string) => `${inputId}-${id}-message`;
 
   const dropzone = useDropzone({
-    ...props.dropzoneProps,
+    ...dropzoneProps,
     onDropAccepted: async (newFiles) => {
       setRootError(undefined);
 
       // useDropzone hook only checks max file count per group of uploaded files, allows going over if in multiple batches
       const fileCount = fileStatuses.length;
       const maxNewFiles =
-        props.dropzoneProps?.maxFiles === undefined
+        dropzoneProps?.maxFiles === undefined
           ? undefined
-          : props.dropzoneProps.maxFiles - fileCount;
+          : dropzoneProps?.maxFiles - fileCount;
 
       const slicedFiles = newFiles.slice(0, maxNewFiles);
 
       if (maxNewFiles !== undefined && maxNewFiles < newFiles.length) {
-        setRootError(
-          getRootError(["too-many-files"], props.dropzoneProps ?? {}),
-        );
+        setRootError(getRootError(["too-many-files"], dropzoneProps ?? {}));
       }
 
       const onDropFilePromises = slicedFiles.map(async (file) => {
@@ -317,7 +348,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     onDropRejected: (fileRejections) => {
       const errorMessage = getRootError(
         getDropZoneErrorCodes(fileRejections),
-        props.dropzoneProps ?? {},
+        dropzoneProps ?? {},
       );
       setRootError(errorMessage);
     },
@@ -477,19 +508,31 @@ interface DropzoneFileListItemProps<TUploadRes, TUploadError>
 export function DropzoneFileListItem<TUploadRes, TUploadError>(
   props: DropzoneFileListItemProps<TUploadRes, TUploadError>,
 ) {
-  const context = useOurDropzoneContext<TUploadRes, TUploadError>();
-  const onRemoveFile = () => context.onRemoveFile(props.file.id);
-  const onRetry = () => context.onRetry(props.file.id);
-  const messageId = context.getFileMessageId(props.file.id);
+  const fileId = props.file.id;
+  const {
+    onRemoveFile: cOnRemoveFile,
+    onRetry: cOnRetry,
+    getFileMessageId: cGetFileMessageId,
+    canRetry: cCanRetry,
+    inputId: cInputId,
+  } = useOurDropzoneContext<TUploadRes, TUploadError>();
+
+  const onRemoveFile = useCallback(
+    () => cOnRemoveFile(fileId),
+    [fileId, cOnRemoveFile],
+  );
+  const onRetry = useCallback(() => cOnRetry(fileId), [fileId, cOnRetry]);
+  const messageId = cGetFileMessageId(fileId);
   const isInvalid = props.file.status === "error";
+  const canRetry = useMemo(() => cCanRetry(fileId), [fileId, cCanRetry]);
   return (
     <DropzoneFileListContext.Provider
       value={{
         onRemoveFile,
         onRetry,
         fileStatus: props.file,
-        canRetry: context.canRetry(props.file.id),
-        dropzoneId: context.inputId,
+        canRetry,
+        dropzoneId: cInputId,
         messageId,
       }}
     >
