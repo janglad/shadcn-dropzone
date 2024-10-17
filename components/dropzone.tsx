@@ -211,30 +211,23 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   fileStatuses: FileStatus<TUploadRes, TUploadError>[];
   isInvalid: boolean;
   isDragActive: boolean;
-  fileErrors: TUploadError[];
   rootError: string | undefined;
   inputId: string;
   rootMessageId: string;
-  messageIds: string[];
+  getFileMessageId: (id: string) => string;
 }
 
 export function useOurDropZone<TUploadRes, TUploadError>(
   props: UseOurDropzoneProps<TUploadRes, TUploadError>
 ): UseOurDropzoneReturn<TUploadRes, TUploadError> {
   const inputId = useId();
-  const rootMessageId = useId();
+  const rootMessageId = `${inputId}-root-message`;
   const [rootError, setRootError] = useState<string | undefined>(undefined);
   const [fileStatuses, dispatch] = useReducer(fileStatusReducer, []);
 
-  const messageIds = fileStatuses
-    .filter((file) => file.status === "error")
-    .map((file) => `${inputId}-${file.fileName}-message`);
-
-  const fileErrors = fileStatuses
-    .filter((file) => file.status === "error")
-    .map((file) => file.error);
-
-  const isInvalid = fileErrors.length > 0 || rootError !== undefined;
+  const isInvalid =
+    fileStatuses.filter((file) => file.status === "error").length > 0 ||
+    rootError !== undefined;
 
   const _uploadFile = async (file: File, id: string, tries = 0) => {
     const result = await props.onDropFile(file);
@@ -291,6 +284,8 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     await _uploadFile(fileStatus.file, id);
   };
 
+  const getFileMessageId = (id: string) => `${inputId}-${id}-message`;
+
   const dropzone = useDropzone({
     ...props.dropzoneProps,
     onDropAccepted: async (newFiles) => {
@@ -333,13 +328,12 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     getInputProps: dropzone.getInputProps,
     inputId,
     rootMessageId,
-    messageIds,
+    getFileMessageId,
     onRemoveFile,
     onRetry,
     canRetry,
     fileStatuses: fileStatuses as FileStatus<TUploadRes, TUploadError>[],
     isInvalid,
-    fileErrors: fileErrors as TUploadError[],
     rootError,
     isDragActive: dropzone.isDragActive,
   };
@@ -355,11 +349,10 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   fileStatuses: [],
   isInvalid: false,
   isDragActive: false,
-  fileErrors: [],
   rootError: undefined,
   inputId: "",
   rootMessageId: "",
-  messageIds: [],
+  getFileMessageId: () => "",
 });
 
 const useOurDropzoneContext = <TUploadRes, TUploadError>() => {
@@ -390,6 +383,10 @@ export function DropZoneArea(props: DropZoneAreaProps) {
     throw new Error("DropzoneArea must be used within a Dropzone");
   }
 
+  const fileMessageIds = context.fileStatuses
+    .filter((file) => file.status === "error")
+    .map((file) => context.getFileMessageId(file.id));
+
   return (
     <div
       {...context.getRootProps()}
@@ -413,7 +410,7 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         id={context.inputId}
         aria-describedby={
           context.isInvalid
-            ? [context.rootMessageId, ...context.messageIds].join(" ")
+            ? [context.rootMessageId, ...fileMessageIds].join(" ")
             : undefined
         }
         aria-invalid={context.isInvalid}
@@ -482,7 +479,8 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
   const onRemoveFile = () => context.onRemoveFile(props.file.id);
   const onRetry = () => context.onRetry(props.file.id);
-  const messageId = `${context.inputId}-${props.file.fileName}-message`;
+  const messageId = context.getFileMessageId(props.file.id);
+  const isInvalid = props.file.status === "error";
   return (
     <DropzoneFileListContext.Provider
       value={{
@@ -496,7 +494,7 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
     >
       <li
         aria-label="dropzone-file-list-item"
-        aria-describedby={messageId}
+        aria-describedby={isInvalid ? messageId : undefined}
         className={cn(
           "flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center",
           props.className
@@ -515,6 +513,7 @@ export function DropzoneRemoveFile(props: DropzoneRemoveFileProps) {
   return (
     <Button onClick={context.onRemoveFile} type="button" size="icon" {...props}>
       {props.children}
+      <span className="sr-only">Remove file</span>
     </Button>
   );
 }
@@ -539,6 +538,7 @@ export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
       )}
     >
       {props.children}
+      <span className="sr-only">Retry</span>
     </Button>
   );
 }
