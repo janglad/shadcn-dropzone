@@ -163,9 +163,6 @@ const getRootError = (
     maxFiles?: number;
   },
 ) => {
-  const roundUpTo = (num: number, decimals: number) => {
-    return Math.ceil(num * 10 ** decimals) / 10 ** decimals;
-  };
   const errors = errorCodes.map((error) => {
     switch (error) {
       case "file-invalid-type":
@@ -174,10 +171,14 @@ const getRootError = (
           .join(", ");
         return `only ${acceptedTypes} are allowed`;
       case "file-too-large":
-        const maxMb = roundUpTo(limits.maxSize ?? 0, 2);
+        const maxMb = limits.maxSize
+          ? (limits.maxSize / (1024 * 1024)).toFixed(2)
+          : "infinite?";
         return `max size is ${maxMb}MB`;
       case "file-too-small":
-        const roundedMinSize = roundUpTo(limits.minSize ?? 0, 2);
+        const roundedMinSize = limits.minSize
+          ? (limits.minSize / (1024 * 1024)).toFixed(2)
+          : "negative?";
         return `min size is ${roundedMinSize}MB`;
       case "too-many-files":
         return `max ${limits.maxFiles} files`;

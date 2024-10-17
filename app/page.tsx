@@ -122,7 +122,7 @@ export default function Home() {
                 </div>
                 <InfiniteProgress status={file.status} />
                 <div className="flex justify-between">
-                  <p>{Math.round(file.file.size / 1024 / 1024)} MB</p>
+                  <p>{(file.file.size / (1024 * 1024)).toFixed(2)} MB</p>
                   <DropzoneFileMessage />
                 </div>
               </DropzoneFileListItem>
