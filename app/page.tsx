@@ -58,7 +58,7 @@ export default function Home() {
     <main className="container min-h-[100dvh] pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
-        <DropZoneArea className="flex flex-col items-center gap-2">
+        <DropZoneArea className="flex flex-col pt-10 items-center gap-2">
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
