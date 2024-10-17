@@ -54,7 +54,7 @@ export default function Home() {
   );
 
   return (
-    <main className="container">
+    <main className="container min-h-[100dvh] pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
         <DropZoneArea className="flex flex-col items-center gap-2">

@@ -1,9 +1,16 @@
 import { LabeledInput } from "@/components/labeled-input";
 import { LabeledSwitch } from "@/components/labeled-switch";
+import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { CogIcon } from "lucide-react";
 
 export const playgroundFormSchema = z.object({
   successRate: z.coerce.number().min(0).max(100),
@@ -39,37 +46,46 @@ export function PlaygroundForm(props: {
   form: ReturnType<typeof usePlaygroundForm>;
 }) {
   return (
-    <Form {...props.form}>
-      <form className="flex flex-col gap-4">
-        <LabeledInput
-          control={props.form.control}
-          name="successRate"
-          label="Success Rate"
-          inputProps={{ type: "number" }}
-          description="Success rate of the fake upload, between 0 and 100"
-        />
-        <LabeledInput
-          control={props.form.control}
-          name="maxFiles"
-          label="Max Files"
-          inputProps={{ type: "number" }}
-          description="Maximum number of files to upload"
-        />
-        <LabeledInput
-          control={props.form.control}
-          name="maxFileSize"
-          label="Max File Size"
-          inputProps={{ type: "number" }}
-          description="Maximum size of a file to upload in MB"
-        />
-        <LabeledSwitch
-          className="p-4 rounded-md border"
-          control={props.form.control}
-          name="autoRetry"
-          label="Auto Retry"
-          description="Automatically retry failed uploads"
-        />
-      </form>
-    </Form>
+    <Popover>
+      <PopoverTrigger asChild className="fixed top-10 right-10">
+        <Button size="icon">
+          <CogIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Form {...props.form}>
+          <form className="flex flex-col gap-4">
+            <LabeledInput
+              control={props.form.control}
+              name="successRate"
+              label="Success Rate"
+              inputProps={{ type: "number" }}
+              description="Success rate of the fake upload, between 0 and 100"
+            />
+            <LabeledInput
+              control={props.form.control}
+              name="maxFiles"
+              label="Max Files"
+              inputProps={{ type: "number" }}
+              description="Maximum number of files to upload"
+            />
+            <LabeledInput
+              control={props.form.control}
+              name="maxFileSize"
+              label="Max File Size"
+              inputProps={{ type: "number" }}
+              description="Maximum size of a file to upload in MB"
+            />
+            <LabeledSwitch
+              className="p-4 rounded-md border"
+              control={props.form.control}
+              name="autoRetry"
+              label="Auto Retry"
+              description="Automatically retry failed uploads"
+            />
+          </form>
+        </Form>
+      </PopoverContent>
+    </Popover>
   );
 }
