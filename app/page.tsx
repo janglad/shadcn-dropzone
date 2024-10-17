@@ -53,6 +53,18 @@ export default function Home() {
           }
         : undefined,
     },
+    onFileUploaded: (result) => {
+      console.log("file uploaded", result);
+    },
+    onAllUploaded: () => {
+      console.log("all uploaded");
+    },
+    onRootError: (error) => {
+      console.log("root error", error);
+    },
+    onFileUploadError: (error) => {
+      console.log("file upload error", error);
+    },
   });
 
   return (
