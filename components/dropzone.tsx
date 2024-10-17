@@ -193,7 +193,7 @@ type UseOurDropzoneProps<TUploadRes, TUploadError> = {
   onFileUploaded?: (result: TUploadRes) => void;
   onFileUploadError?: (error: TUploadError) => void;
   onAllUploaded?: () => void;
-  onRootError?: (error: string) => void;
+  onRootError?: (error: string | undefined) => void;
   maxRetryCount?: number;
   autoRetry?: boolean;
   dropzoneProps?: {
@@ -243,7 +243,18 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 
   const inputId = useId();
   const rootMessageId = `${inputId}-root-message`;
-  const [rootError, setRootError] = useState<string | undefined>(undefined);
+  const [rootError, _setRootError] = useState<string | undefined>(undefined);
+
+  const setRootError = useCallback(
+    (error: string | undefined) => {
+      _setRootError(error);
+      if (pOnRootError !== undefined) {
+        pOnRootError(error);
+      }
+    },
+    [pOnRootError, _setRootError],
+  );
+
   const [fileStatuses, dispatch] = useReducer(fileStatusReducer, []);
 
   const isInvalid = useMemo(() => {
@@ -272,7 +283,13 @@ export function useOurDropZone<TUploadRes, TUploadError>(
               ? pShapeUploadError(result.error)
               : result.error,
         });
+        if (pOnFileUploadError !== undefined) {
+          pOnFileUploadError(result.error);
+        }
         return;
+      }
+      if (pOnFileUploaded !== undefined) {
+        pOnFileUploaded(result.result);
       }
       dispatch({
         type: "update-status",
@@ -280,7 +297,14 @@ export function useOurDropZone<TUploadRes, TUploadError>(
         ...result,
       });
     },
-    [autoRetry, maxRetryCount, pOnDropFile, pShapeUploadError],
+    [
+      autoRetry,
+      maxRetryCount,
+      pOnDropFile,
+      pShapeUploadError,
+      pOnFileUploadError,
+      pOnFileUploaded,
+    ],
   );
 
   const onRemoveFile = useCallback(
@@ -344,6 +368,9 @@ export function useOurDropZone<TUploadRes, TUploadError>(
       });
 
       await Promise.all(onDropFilePromises);
+      if (pOnAllUploaded !== undefined) {
+        pOnAllUploaded();
+      }
     },
     onDropRejected: (fileRejections) => {
       const errorMessage = getRootError(
