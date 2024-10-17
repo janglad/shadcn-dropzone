@@ -56,7 +56,7 @@ export default function Home() {
   });
 
   return (
-    <main className="container min-h-[100dvh] pt-80">
+    <main className="container min-h-dvh pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
         <DropzoneRootMessage className="text-right" />
