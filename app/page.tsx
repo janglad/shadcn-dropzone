@@ -106,7 +106,6 @@ export default function Home() {
                     >
                       <Trash2Icon className="size-4" />
                     </DropzoneRemoveFile>
-                    <p>tries: {file.tries}</p>
                   </div>
                 </div>
                 <InfiniteProgress status={file.status} />
