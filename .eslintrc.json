@@ -8,5 +8,6 @@
   "plugins": ["react-compiler"],
   "rules": {
     "react-compiler/react-compiler": "error"
-  }
+  },
+  "ignorePatterns": ["**/components/ui/**"]
 }
