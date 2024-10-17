@@ -18,6 +18,7 @@ export const playgroundFormSchema = z.object({
   maxFileSize: z.coerce.number().min(1),
   autoRetry: z.boolean(),
   maxRetryCount: z.coerce.number(),
+  onlyImage: z.boolean(),
 });
 
 type PlaygroundFormInput = z.input<typeof playgroundFormSchema>;
@@ -29,6 +30,7 @@ const playgroundFormDefaultValues: PlaygroundFormInput = {
   maxFileSize: 10,
   autoRetry: false,
   maxRetryCount: 3,
+  onlyImage: false,
 };
 
 export const usePlaygroundForm = () => {
@@ -82,6 +84,13 @@ export function PlaygroundForm(props: {
               name="autoRetry"
               label="Auto Retry"
               description="Automatically retry failed uploads"
+            />
+            <LabeledSwitch
+              className="p-4 rounded-md border"
+              control={props.form.control}
+              name="onlyImage"
+              label="Only Images"
+              description="Only allow images. You can pass exact file/mime types, but don't want to make an input for this lol"
             />
           </form>
         </Form>

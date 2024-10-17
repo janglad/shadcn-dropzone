@@ -44,6 +44,13 @@ export default function Home() {
     dropzoneProps: {
       maxFiles: values.maxFiles,
       maxSize: values.maxFileSize * 1024 * 1024,
+      accept: values.onlyImage
+        ? {
+            "image/png": [".png"],
+            "image/jpeg": [".jpg", ".jpeg"],
+            "image/webp": [".webp"],
+          }
+        : undefined,
     },
   });
 
