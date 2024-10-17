@@ -12,12 +12,18 @@ import {
   useOurDropZone,
 } from "@/components/dropzone";
 import { FileIcon, RotateCcwIcon, Trash2Icon, Upload } from "lucide-react";
+import { PlaygroundForm, usePlaygroundForm } from "./controls";
 
 export default function Home() {
+  const form = usePlaygroundForm();
+
+  const values = form.watch();
+
   const dropzone = useOurDropZone({
     onDropFile: async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (Math.random() > 90) {
+      console.log(values.successRate);
+      if (values.successRate > Math.random() * 100) {
         return {
           status: "success",
           result: "success",
@@ -33,25 +39,44 @@ export default function Home() {
     shapeUploadError: (error) => {
       return error.message;
     },
-    maxRetryCount: 3,
+    maxRetryCount: values.maxRetryCount,
+    autoRetry: values.autoRetry,
+    dropzoneProps: {
+      maxFiles: values.maxFiles,
+      maxSize: values.maxFileSize * 1024 * 1024,
+    },
   });
+
+  console.log(
+    dropzone.fileStatuses.length * 112 +
+      (dropzone.fileStatuses.length - 1) * 8 +
+      16
+  );
 
   return (
     <main className="container">
+      <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
         <DropZoneArea className="flex flex-col items-center gap-2">
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
             style={{
-              height: `${dropzone.fileStatuses.length * 112}px`,
+              height: `${
+                dropzone.fileStatuses.length * 112 +
+                (dropzone.fileStatuses.length - 1) * 8 +
+                16
+              }px`,
+              gap: "8px",
+              paddingTop: "8px",
+              paddingBottom: "8px",
             }}
             className="w-full transition-all duration-300 overflow-hidden"
             render={(file) => (
               <DropzoneFileListItem
                 key={file.id}
                 file={file}
-                className=" h-[112px]"
+                className=" h-[112px] shrink-0"
               >
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">

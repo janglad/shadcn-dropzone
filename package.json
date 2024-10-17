@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.1",
+    "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.1",
+    "@radix-ui/react-toggle": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.452.0",
@@ -20,8 +25,10 @@
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.9",
+    "react-hook-form": "^7.53.0",
     "tailwind-merge": "^2.5.3",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",

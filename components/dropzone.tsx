@@ -460,8 +460,8 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
   return (
     <ol
       aria-label="dropzone-file-list"
-      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
       {...rest}
+      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -497,7 +497,10 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
       <li
         aria-label="dropzone-file-list-item"
         aria-describedby={messageId}
-        className="flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center"
+        className={cn(
+          "flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center",
+          props.className
+        )}
       >
         {props.children}
       </li>
