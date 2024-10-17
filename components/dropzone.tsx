@@ -9,10 +9,14 @@ import {
   useReducer,
   useState,
 } from "react";
-import { Accept, FileRejection, useDropzone } from "react-dropzone";
+import {
+  Accept,
+  FileRejection,
+  useDropzone as rootUseDropzone,
+} from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
 
-type OurDropzoneResult<TUploadRes, TUploadError> =
+type DropzoneResult<TUploadRes, TUploadError> =
   | {
       status: "pending";
     }
@@ -97,7 +101,7 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
     | ({
         type: "update-status";
         id: string;
-      } & OurDropzoneResult<TUploadRes, TUploadError>),
+      } & DropzoneResult<TUploadRes, TUploadError>),
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {
     case "add":
@@ -183,11 +187,11 @@ const getRootError = (
   return joinedErrors.charAt(0).toUpperCase() + joinedErrors.slice(1);
 };
 
-type UseOurDropzoneProps<TUploadRes, TUploadError> = {
+type UseDropzoneProps<TUploadRes, TUploadError> = {
   onDropFile: (
     file: File,
   ) => Promise<
-    Exclude<OurDropzoneResult<TUploadRes, TUploadError>, { status: "pending" }>
+    Exclude<DropzoneResult<TUploadRes, TUploadError>, { status: "pending" }>
   >;
   onRemoveFile?: (id: string) => void | Promise<void>;
   onFileUploaded?: (result: TUploadRes) => void;
@@ -210,9 +214,9 @@ type UseOurDropzoneProps<TUploadRes, TUploadError> = {
       shapeUploadError: (error: NoInfer<TUploadError>) => string | void;
     });
 
-interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
-  getRootProps: ReturnType<typeof useDropzone>["getRootProps"];
-  getInputProps: ReturnType<typeof useDropzone>["getInputProps"];
+interface UseDropzoneReturn<TUploadRes, TUploadError> {
+  getRootProps: ReturnType<typeof rootUseDropzone>["getRootProps"];
+  getInputProps: ReturnType<typeof rootUseDropzone>["getInputProps"];
   onRemoveFile: (id: string) => Promise<void>;
   onRetry: (id: string) => Promise<void>;
   canRetry: (id: string) => boolean;
@@ -225,9 +229,9 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
   getFileMessageId: (id: string) => string;
 }
 
-export function useOurDropZone<TUploadRes, TUploadError>(
-  props: UseOurDropzoneProps<TUploadRes, TUploadError>,
-): UseOurDropzoneReturn<TUploadRes, TUploadError> {
+export function useDropzone<TUploadRes, TUploadError>(
+  props: UseDropzoneProps<TUploadRes, TUploadError>,
+): UseDropzoneReturn<TUploadRes, TUploadError> {
   const {
     onDropFile: pOnDropFile,
     onRemoveFile: pOnRemoveFile,
@@ -343,7 +347,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 
   const getFileMessageId = (id: string) => `${inputId}-${id}-message`;
 
-  const dropzone = useDropzone({
+  const dropzone = rootUseDropzone({
     ...dropzoneProps,
     onDropAccepted: async (newFiles) => {
       setRootError(undefined);
@@ -398,7 +402,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
+const DropZoneContext = createContext<UseDropzoneReturn<any, any>>({
   getRootProps: () => ({}) as never,
   getInputProps: () => ({}) as never,
   onRemoveFile: async () => {},
@@ -413,15 +417,15 @@ const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
   getFileMessageId: () => "",
 });
 
-const useOurDropzoneContext = <TUploadRes, TUploadError>() => {
-  return useContext(DropZoneContext) as UseOurDropzoneReturn<
+const useDropzoneContext = <TUploadRes, TUploadError>() => {
+  return useContext(DropZoneContext) as UseDropzoneReturn<
     TUploadRes,
     TUploadError
   >;
 };
 
 export function Dropzone<TUploadRes, TUploadError>(
-  props: UseOurDropzoneReturn<TUploadRes, TUploadError> & {
+  props: UseDropzoneReturn<TUploadRes, TUploadError> & {
     children: React.ReactNode;
   },
 ) {
@@ -435,7 +439,7 @@ interface DropZoneAreaProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function DropZoneArea(props: DropZoneAreaProps) {
   const { children, ...rest } = props;
-  const context = useOurDropzoneContext();
+  const context = useDropzoneContext();
 
   if (!context) {
     throw new Error("DropzoneArea must be used within a Dropzone");
@@ -510,7 +514,7 @@ interface DropZoneFileListProps<TUploadRes, TUploadError>
 export function DropzoneFileList<TUploadRes, TUploadError = string>(
   props: DropZoneFileListProps<TUploadRes, TUploadError>,
 ) {
-  const context = useOurDropzoneContext<TUploadRes, TUploadError>();
+  const context = useDropzoneContext<TUploadRes, TUploadError>();
   const { render, ...rest } = props;
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
@@ -542,7 +546,7 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
     getFileMessageId: cGetFileMessageId,
     canRetry: cCanRetry,
     inputId: cInputId,
-  } = useOurDropzoneContext<TUploadRes, TUploadError>();
+  } = useDropzoneContext<TUploadRes, TUploadError>();
 
   const onRemoveFile = useCallback(
     () => cOnRemoveFile(fileId),
@@ -644,7 +648,7 @@ interface DropzoneRootMessageProps
 
 export function DropzoneRootMessage(props: DropzoneRootMessageProps) {
   const { children, ...rest } = props;
-  const context = useOurDropzoneContext();
+  const context = useDropzoneContext();
 
   const body = context.rootError ? String(context.rootError) : children;
   return (

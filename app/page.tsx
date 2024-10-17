@@ -10,7 +10,7 @@ import {
   DropzoneRetryFile,
   DropzoneRootMessage,
   InfiniteProgress,
-  useOurDropZone,
+  useDropzone,
 } from "@/components/dropzone";
 import { FileIcon, RotateCcwIcon, Trash2Icon, Upload } from "lucide-react";
 import { PlaygroundForm, usePlaygroundForm } from "./controls";
@@ -20,7 +20,7 @@ export default function Home() {
 
   const values = form.watch();
 
-  const dropzone = useOurDropZone({
+  const dropzone = useDropzone({
     onDropFile: async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log(values.successRate);
