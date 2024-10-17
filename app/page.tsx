@@ -54,12 +54,6 @@ export default function Home() {
     },
   });
 
-  console.log(
-    dropzone.fileStatuses.length * 112 +
-      (dropzone.fileStatuses.length - 1) * 8 +
-      16
-  );
-
   return (
     <main className="container min-h-[100dvh] pt-80">
       <PlaygroundForm form={form} />
