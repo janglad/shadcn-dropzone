@@ -557,11 +557,33 @@ export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
   return (
     <p
       id={context.messageId}
+      {...rest}
       className={cn(
         "h-5 text-[0.8rem] font-medium text-destructive",
         rest.className
       )}
+    >
+      {body}
+    </p>
+  );
+}
+
+interface DropzoneRootMessageProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+export function DropzoneRootMessage(props: DropzoneRootMessageProps) {
+  const { children, ...rest } = props;
+  const context = useOurDropzoneContext();
+
+  const body = context.rootError ? String(context.rootError) : children;
+  return (
+    <p
+      id={context.rootMessageId}
       {...rest}
+      className={cn(
+        "h-5 text-[0.8rem] font-medium text-destructive",
+        rest.className
+      )}
     >
       {body}
     </p>
