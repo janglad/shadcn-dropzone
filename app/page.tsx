@@ -60,7 +60,7 @@ export default function Home() {
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
         <DropzoneRootMessage className="text-right" />
-        <DropZoneArea className="flex flex-col pt-10 items-center gap-2">
+        <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
           <Upload />
           <p>Click or drag and drop files to upload them</p>
           <DropzoneFileList
@@ -74,12 +74,12 @@ export default function Home() {
               paddingTop: "8px",
               paddingBottom: "8px",
             }}
-            className="w-full transition-all duration-300 overflow-hidden"
+            className="w-full overflow-hidden transition-all duration-300"
             render={(file) => (
               <DropzoneFileListItem
                 key={file.id}
                 file={file}
-                className=" h-[112px] shrink-0"
+                className="h-[112px] shrink-0"
               >
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2 font-bold">

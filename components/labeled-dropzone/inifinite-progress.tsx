@@ -26,7 +26,7 @@ export function InfiniteProgress(props: InfiniteProgressProps) {
         className={cn(
           "h-full w-full rounded-full bg-primary",
           done ? "translate-x-0" : "animate-infinite-progress",
-          error && "bg-destructive"
+          error && "bg-destructive",
         )}
       />
     </div>

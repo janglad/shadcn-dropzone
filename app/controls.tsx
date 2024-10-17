@@ -2,15 +2,15 @@ import { LabeledInput } from "@/components/labeled-input";
 import { LabeledSwitch } from "@/components/labeled-switch";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CogIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 export const playgroundFormSchema = z.object({
   successRate: z.coerce.number().min(0).max(100),
@@ -49,7 +49,7 @@ export function PlaygroundForm(props: {
 }) {
   return (
     <Popover>
-      <PopoverTrigger asChild className="fixed top-10 right-10">
+      <PopoverTrigger asChild className="fixed right-10 top-10">
         <Button size="icon">
           <CogIcon />
         </Button>
@@ -79,14 +79,14 @@ export function PlaygroundForm(props: {
               description="Maximum size of a file to upload in MB"
             />
             <LabeledSwitch
-              className="p-4 rounded-md border"
+              className="rounded-md border p-4"
               control={props.form.control}
               name="autoRetry"
               label="Auto Retry"
               description="Automatically retry failed uploads"
             />
             <LabeledSwitch
-              className="p-4 rounded-md border"
+              className="rounded-md border p-4"
               control={props.form.control}
               name="onlyImage"
               label="Only Images"

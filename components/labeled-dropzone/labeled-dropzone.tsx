@@ -4,10 +4,10 @@ import { Accept } from "react-dropzone";
 import { ResultAsync } from "neverthrow";
 import { useId } from "react";
 
+import { cn } from "@/lib/utils";
+import { Label } from "../ui/label";
 import { DropZoneFileList } from "./file-list";
 import { useOurDropZone } from "./hook";
-import { Label } from "../ui/label";
-import { cn } from "@/lib/utils";
 
 const dummyFile = new File([new ArrayBuffer(1024 * 1024)], "test.png", {
   type: "image/png",
@@ -54,7 +54,7 @@ export type FileStatus<TUploadRes, TUploadError> = {
 
 interface LabeledDropzoneProps<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 > {
   label?: string;
   dropzoneProps?: {
@@ -71,7 +71,7 @@ interface LabeledDropzoneProps<
 
 export function LabeledDropzone<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 >(props: LabeledDropzoneProps<TUploadRes, TUploadError>) {
   const inputId = useId();
   const messageId = useId();
@@ -100,7 +100,7 @@ export function LabeledDropzone<
         className={cn(
           "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           dropzone.isDragActive && "animate-pulse bg-black/5",
-          isInvalid && "border-destructive"
+          isInvalid && "border-destructive",
         )}
       >
         <div className="flex w-full flex-col items-center gap-2">

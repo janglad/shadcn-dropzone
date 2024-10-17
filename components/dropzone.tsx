@@ -43,7 +43,7 @@ export function InfiniteProgress(props: InfiniteProgressProps) {
         className={cn(
           "h-full w-full rounded-full bg-primary",
           done ? "translate-x-0" : "animate-infinite-progress",
-          error && "bg-destructive"
+          error && "bg-destructive",
         )}
       />
     </div>
@@ -89,7 +89,7 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
     | ({
         type: "update-status";
         id: string;
-      } & OurDropzoneResult<TUploadRes, TUploadError>)
+      } & OurDropzoneResult<TUploadRes, TUploadError>),
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {
     case "add":
@@ -135,7 +135,7 @@ const getDropZoneErrorCodes = (fileRejections: FileRejection[]) => {
   const errors = fileRejections.map((rejection) => {
     return rejection.errors
       .filter((error) =>
-        dropZoneErrorCodes.includes(error.code as DropZoneErrorCode)
+        dropZoneErrorCodes.includes(error.code as DropZoneErrorCode),
       )
       .map((error) => error.code) as DropZoneErrorCode[];
   });
@@ -149,7 +149,7 @@ const getRootError = (
     maxSize?: number;
     minSize?: number;
     maxFiles?: number;
-  }
+  },
 ) => {
   const roundUpTo = (num: number, decimals: number) => {
     return Math.ceil(num * 10 ** decimals) / 10 ** decimals;
@@ -177,7 +177,7 @@ const getRootError = (
 
 type UseOurDropzoneProps<TUploadRes, TUploadError> = {
   onDropFile: (
-    file: File
+    file: File,
   ) => Promise<
     Exclude<OurDropzoneResult<TUploadRes, TUploadError>, { status: "pending" }>
   >;
@@ -218,7 +218,7 @@ interface UseOurDropzoneReturn<TUploadRes, TUploadError> {
 }
 
 export function useOurDropZone<TUploadRes, TUploadError>(
-  props: UseOurDropzoneProps<TUploadRes, TUploadError>
+  props: UseOurDropzoneProps<TUploadRes, TUploadError>,
 ): UseOurDropzoneReturn<TUploadRes, TUploadError> {
   const inputId = useId();
   const rootMessageId = `${inputId}-root-message`;
@@ -302,7 +302,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 
       if (maxNewFiles !== undefined && maxNewFiles < newFiles.length) {
         setRootError(
-          getRootError(["too-many-files"], props.dropzoneProps ?? {})
+          getRootError(["too-many-files"], props.dropzoneProps ?? {}),
         );
       }
 
@@ -317,7 +317,7 @@ export function useOurDropZone<TUploadRes, TUploadError>(
     onDropRejected: (fileRejections) => {
       const errorMessage = getRootError(
         getDropZoneErrorCodes(fileRejections),
-        props.dropzoneProps ?? {}
+        props.dropzoneProps ?? {},
       );
       setRootError(errorMessage);
     },
@@ -341,8 +341,8 @@ export function useOurDropZone<TUploadRes, TUploadError>(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DropZoneContext = createContext<UseOurDropzoneReturn<any, any>>({
-  getRootProps: () => ({} as never),
-  getInputProps: () => ({} as never),
+  getRootProps: () => ({}) as never,
+  getInputProps: () => ({}) as never,
   onRemoveFile: async () => {},
   onRetry: async () => {},
   canRetry: () => false,
@@ -365,7 +365,7 @@ const useOurDropzoneContext = <TUploadRes, TUploadError>() => {
 export function Dropzone<TUploadRes, TUploadError>(
   props: UseOurDropzoneReturn<TUploadRes, TUploadError> & {
     children: React.ReactNode;
-  }
+  },
 ) {
   const { children, ...rest } = props;
   return (
@@ -397,7 +397,7 @@ export function DropZoneArea(props: DropZoneAreaProps) {
         "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         context.isDragActive && "animate-pulse bg-black/5",
         context.isInvalid && "border-destructive",
-        rest.className
+        rest.className,
       )}
     >
       <input
@@ -450,7 +450,7 @@ interface DropZoneFileListProps<TUploadRes, TUploadError>
 }
 
 export function DropzoneFileList<TUploadRes, TUploadError = string>(
-  props: DropZoneFileListProps<TUploadRes, TUploadError>
+  props: DropZoneFileListProps<TUploadRes, TUploadError>,
 ) {
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
   const { render, ...rest } = props;
@@ -458,7 +458,7 @@ export function DropzoneFileList<TUploadRes, TUploadError = string>(
     <ol
       aria-label="dropzone-file-list"
       {...rest}
-      className={cn("flex flex-col gap-4 py-2 px-4", props.className)}
+      className={cn("flex flex-col gap-4 px-4 py-2", props.className)}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -474,7 +474,7 @@ interface DropzoneFileListItemProps<TUploadRes, TUploadError>
 }
 
 export function DropzoneFileListItem<TUploadRes, TUploadError>(
-  props: DropzoneFileListItemProps<TUploadRes, TUploadError>
+  props: DropzoneFileListItemProps<TUploadRes, TUploadError>,
 ) {
   const context = useOurDropzoneContext<TUploadRes, TUploadError>();
   const onRemoveFile = () => context.onRemoveFile(props.file.id);
@@ -496,8 +496,8 @@ export function DropzoneFileListItem<TUploadRes, TUploadError>(
         aria-label="dropzone-file-list-item"
         aria-describedby={isInvalid ? messageId : undefined}
         className={cn(
-          "flex flex-col gap-2 rounded-md bg-muted/40 px-4 py-2 justify-center",
-          props.className
+          "flex flex-col justify-center gap-2 rounded-md bg-muted/40 px-4 py-2",
+          props.className,
         )}
       >
         {props.children}
@@ -533,8 +533,8 @@ export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
       size="icon"
       {...props}
       className={cn(
-        "aria-disabled:opacity-50 aria-disabled:pointer-events-none",
-        props.className
+        "aria-disabled:pointer-events-none aria-disabled:opacity-50",
+        props.className,
       )}
     >
       {props.children}
@@ -560,7 +560,7 @@ export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
       {...rest}
       className={cn(
         "h-5 text-[0.8rem] font-medium text-destructive",
-        rest.className
+        rest.className,
       )}
     >
       {body}
@@ -582,7 +582,7 @@ export function DropzoneRootMessage(props: DropzoneRootMessageProps) {
       {...rest}
       className={cn(
         "h-5 text-[0.8rem] font-medium text-destructive",
-        rest.className
+        rest.className,
       )}
     >
       {body}

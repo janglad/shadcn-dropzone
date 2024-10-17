@@ -1,9 +1,4 @@
-import type {
-  Control,
-  ControllerRenderProps,
-  FieldValues,
-  UseControllerProps,
-} from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
   FormField,
@@ -11,7 +6,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+import type {
+  Control,
+  ControllerRenderProps,
+  FieldValues,
+  UseControllerProps,
+} from "react-hook-form";
 
 interface LabeledCheckboxProps<TFieldValues extends FieldValues>
   extends UseControllerProps<TFieldValues> {
@@ -25,7 +25,7 @@ interface LabeledCheckboxProps<TFieldValues extends FieldValues>
 }
 
 export function LabeledCheckbox<TFieldValues extends FieldValues>(
-  props: LabeledCheckboxProps<TFieldValues>
+  props: LabeledCheckboxProps<TFieldValues>,
 ) {
   const { inputProps, ...restProps } = props;
   const isInvalid = props.control.getFieldState(props.name).invalid;

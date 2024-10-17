@@ -7,7 +7,7 @@ import { FileStatus } from "./labeled-dropzone";
 
 const fileStatusReducer = <
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 >(
   state: FileStatus<TUploadRes, TUploadError>[],
   action:
@@ -28,7 +28,7 @@ const fileStatusReducer = <
         | { status: "pending"; result?: undefined; error?: undefined }
         | { status: "success"; result: TUploadRes; error?: undefined }
         | { status: "error"; result?: undefined; error: TUploadError }
-      ))
+      )),
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {
     case "add":
@@ -69,7 +69,7 @@ const getDropZoneErrorCodes = (fileRejections: FileRejection[]) => {
   const errors = fileRejections.map((rejection) => {
     return rejection.errors
       .filter((error) =>
-        dropZoneErrorCodes.includes(error.code as DropZoneErrorCode)
+        dropZoneErrorCodes.includes(error.code as DropZoneErrorCode),
       )
       .map((error) => error.code) as DropZoneErrorCode[];
   });
@@ -83,7 +83,7 @@ const getRootError = (
     maxSize?: number;
     minSize?: number;
     maxFiles?: number;
-  }
+  },
 ) => {
   const errors = errorCodes.map((error) => {
     switch (error) {
@@ -108,7 +108,7 @@ const getRootError = (
 
 interface UseOurDropZoneProps<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 > {
   onDropFile: (file: File) => ResultAsync<TUploadRes, TUploadError>;
   onRemoveFile?: (id: string) => void | Promise<void>;
@@ -122,7 +122,7 @@ interface UseOurDropZoneProps<
 }
 export function useOurDropZone<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 >(props: UseOurDropZoneProps<TUploadRes, TUploadError>) {
   const [rootError, setRootError] = useState<string | undefined>(undefined);
   const [fileStatuses, dispatch] = useReducer(fileStatusReducer, []);
@@ -154,7 +154,7 @@ export function useOurDropZone<
 
       if (maxNewFiles !== undefined && maxNewFiles < newFiles.length) {
         setRootError(
-          getRootError(["too-many-files"], props.dropzoneProps ?? {})
+          getRootError(["too-many-files"], props.dropzoneProps ?? {}),
         );
       }
 
@@ -184,7 +184,7 @@ export function useOurDropZone<
     onDropRejected: (fileRejections) => {
       const errorMessage = getRootError(
         getDropZoneErrorCodes(fileRejections),
-        props.dropzoneProps ?? {}
+        props.dropzoneProps ?? {},
       );
       setRootError(errorMessage);
     },

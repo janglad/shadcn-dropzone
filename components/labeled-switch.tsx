@@ -1,9 +1,3 @@
-import type {
-  Control,
-  ControllerRenderProps,
-  FieldValues,
-  UseControllerProps,
-} from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -14,6 +8,12 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import type {
+  Control,
+  ControllerRenderProps,
+  FieldValues,
+  UseControllerProps,
+} from "react-hook-form";
 
 interface LabeledSwitchProps<TFieldValues extends FieldValues>
   extends UseControllerProps<TFieldValues> {
@@ -29,7 +29,7 @@ interface LabeledSwitchProps<TFieldValues extends FieldValues>
 }
 
 export function LabeledSwitch<TFieldValues extends FieldValues>(
-  props: LabeledSwitchProps<TFieldValues>
+  props: LabeledSwitchProps<TFieldValues>,
 ) {
   const { inputProps, ...restProps } = props;
   const isInvalid = props.control.getFieldState(props.name).invalid;
@@ -41,7 +41,7 @@ export function LabeledSwitch<TFieldValues extends FieldValues>(
         <FormItem
           className={cn(
             "flex items-center justify-between space-y-0",
-            props.className
+            props.className,
           )}
         >
           <div className="flex flex-col justify-between">

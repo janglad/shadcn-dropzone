@@ -1,6 +1,3 @@
-import { roundUpTo } from "@/lib/utils";
-import { FileIcon, Trash2Icon } from "lucide-react";
-import { InfiniteProgress } from "./inifinite-progress";
 import {
   Accordion,
   AccordionContent,
@@ -8,11 +5,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { roundUpTo } from "@/lib/utils";
+import { FileIcon, Trash2Icon } from "lucide-react";
+import { InfiniteProgress } from "./inifinite-progress";
 import { FileStatus } from "./labeled-dropzone";
 
 interface DropZoneFileListProps<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 > {
   fileStatuses: FileStatus<TUploadRes, TUploadError>[];
   onRemoveFile: (id: string) => void | Promise<void>;
@@ -20,11 +20,11 @@ interface DropZoneFileListProps<
 
 export function DropZoneFileList<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 >(props: DropZoneFileListProps<TUploadRes, TUploadError>) {
   const totalFiles = props.fileStatuses.length;
   const uploadedFiles = props.fileStatuses.filter(
-    (fileStatus) => fileStatus.status === "success"
+    (fileStatus) => fileStatus.status === "success",
   ).length;
 
   const olHeight = Math.max(totalFiles * 96 + (totalFiles - 1) * 16, 0);
@@ -68,14 +68,14 @@ export function DropZoneFileList<
 
 interface FileLineProps<
   TUploadRes,
-  TUploadError extends string | undefined | void
+  TUploadError extends string | undefined | void,
 > {
   fileStatus: FileStatus<TUploadRes, TUploadError>;
   onRemoveFile: (id: string) => void | Promise<void>;
 }
 
 function FileLine<TUploadRes, TUploadError extends string | undefined | void>(
-  props: FileLineProps<TUploadRes, TUploadError>
+  props: FileLineProps<TUploadRes, TUploadError>,
 ) {
   return (
     <li className="flex h-24 flex-col gap-2 rounded-md bg-muted/40 px-4 py-2">

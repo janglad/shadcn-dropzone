@@ -1,19 +1,19 @@
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import type {
   Control,
   ControllerRenderProps,
   FieldValues,
   UseControllerProps,
 } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 interface LabeledInputProps<TFieldValues extends FieldValues>
   extends UseControllerProps<TFieldValues> {
@@ -29,7 +29,7 @@ interface LabeledInputProps<TFieldValues extends FieldValues>
 }
 
 export function LabeledInput<TFieldValues extends FieldValues>(
-  props: LabeledInputProps<TFieldValues>
+  props: LabeledInputProps<TFieldValues>,
 ) {
   const { inputProps, ...restProps } = props;
   const isInvalid = props.control.getFieldState(props.name).invalid;
