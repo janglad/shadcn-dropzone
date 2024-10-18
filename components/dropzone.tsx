@@ -531,6 +531,10 @@ const DropzoneFileList = forwardRef<
   DropZoneFileListProps<unknown, unknown>
 >(({ className, ...props }, ref) => {
   const context = useDropzoneContext();
+  if (!context) {
+    throw new Error("DropzoneFileList must be used within a Dropzone");
+  }
+
   const { render, ...rest } = props;
   return (
     <ol
