@@ -30,47 +30,6 @@ type DropzoneResult<TUploadRes, TUploadError> =
       result: TUploadRes;
     };
 
-interface InfiniteProgressProps extends React.HTMLAttributes<HTMLDivElement> {
-  status: "pending" | "success" | "error";
-}
-
-const valueTextMap = {
-  pending: "indeterminate",
-  success: "100%",
-  error: "error",
-};
-
-const InfiniteProgress = forwardRef<HTMLDivElement, InfiniteProgressProps>(
-  ({ className, ...props }, ref) => {
-    const done = props.status === "success" || props.status === "error";
-    const error = props.status === "error";
-    return (
-      <div
-        ref={ref}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuetext={valueTextMap[props.status]}
-        {...props}
-        className={cn(
-          "relative h-2 w-full overflow-hidden rounded-full bg-muted",
-          className,
-        )}
-      >
-        <div
-          //   TODO: add proper done transition
-          className={cn(
-            "h-full w-full rounded-full bg-primary",
-            done ? "translate-x-0" : "animate-infinite-progress",
-            error && "bg-destructive",
-          )}
-        />
-      </div>
-    );
-  },
-);
-InfiniteProgress.displayName = "InfiniteProgress";
-
 export type FileStatus<TUploadRes, TUploadError> = {
   id: string;
   fileName: string;
@@ -438,10 +397,12 @@ const useDropzoneContext = <TUploadRes, TUploadError>() => {
   >;
 };
 
+interface DropzoneProps<TUploadRes, TUploadError>
+  extends UseDropzoneReturn<TUploadRes, TUploadError> {
+  children: React.ReactNode;
+}
 const Dropzone = <TUploadRes, TUploadError>(
-  props: UseDropzoneReturn<TUploadRes, TUploadError> & {
-    children: React.ReactNode;
-  },
+  props: DropzoneProps<TUploadRes, TUploadError>,
 ) => {
   const { children, ...rest } = props;
   return (
@@ -451,7 +412,6 @@ const Dropzone = <TUploadRes, TUploadError>(
 Dropzone.displayName = "Dropzone";
 
 interface DropZoneAreaProps extends React.HTMLAttributes<HTMLDivElement> {}
-
 const DropZoneArea = forwardRef<HTMLDivElement, DropZoneAreaProps>(
   ({ className, children, ...props }, forwardedRef) => {
     const context = useDropzoneContext();
@@ -496,6 +456,30 @@ const DropZoneArea = forwardRef<HTMLDivElement, DropZoneAreaProps>(
   },
 );
 DropZoneArea.displayName = "DropZoneArea";
+
+export interface DropzoneDescriptionProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const DropzoneDescription = forwardRef<
+  HTMLParagraphElement,
+  DropzoneDescriptionProps
+>((props, ref) => {
+  const { className, ...rest } = props;
+  const context = useDropzoneContext();
+  if (!context) {
+    throw new Error("DropzoneDescription must be used within a Dropzone");
+  }
+
+  return (
+    <p
+      ref={ref}
+      id={context.rootDescriptionId}
+      {...rest}
+      className={cn("text-sm text-muted-foreground", className)}
+    />
+  );
+});
+DropzoneDescription.displayName = "DropzoneDescription";
 
 interface DropzoneFileListContext<TUploadRes, TUploadError> {
   onRemoveFile: () => Promise<void>;
@@ -602,6 +586,121 @@ const DropzoneFileListItem = forwardRef<
 });
 DropzoneFileListItem.displayName = "DropzoneFileListItem";
 
+interface DropzoneFileMessageProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const DropzoneFileMessage = forwardRef<
+  HTMLParagraphElement,
+  DropzoneFileMessageProps
+>((props, ref) => {
+  const { children, ...rest } = props;
+  const context = useDropzoneFileListContext();
+  if (!context) {
+    throw new Error(
+      "DropzoneFileMessage must be used within a DropzoneFileListItem",
+    );
+  }
+
+  const body =
+    context.fileStatus.status === "error"
+      ? String(context.fileStatus.error)
+      : children;
+  return (
+    <p
+      ref={ref}
+      id={context.messageId}
+      {...rest}
+      className={cn(
+        "h-5 text-[0.8rem] font-medium text-destructive",
+        rest.className,
+      )}
+    >
+      {body}
+    </p>
+  );
+});
+DropzoneFileMessage.displayName = "DropzoneFileMessage";
+
+interface DropzoneTriggerProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+
+const DropzoneLabel = forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
+  ({ className, children, ...props }, ref) => {
+    const context = useDropzoneContext();
+    if (!context) {
+      throw new Error("DropzoneLabel must be used within a Dropzone");
+    }
+
+    const { fileStatuses, getFileMessageId } = context;
+
+    const fileMessageIds = useMemo(
+      () =>
+        fileStatuses
+          .filter((file) => file.status === "error")
+          .map((file) => getFileMessageId(file.id)),
+      [fileStatuses, getFileMessageId],
+    );
+
+    return (
+      <label
+        ref={ref}
+        {...props}
+        className={cn(
+          "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
+          className,
+        )}
+      >
+        {children}
+        <input
+          {...context.getInputProps({
+            style: {
+              display: undefined,
+            },
+            className: "sr-only",
+            tabIndex: undefined,
+          })}
+          aria-describedby={
+            context.isInvalid
+              ? [context.rootMessageId, ...fileMessageIds].join(" ")
+              : undefined
+          }
+          aria-invalid={context.isInvalid}
+        />
+      </label>
+    );
+  },
+);
+DropzoneLabel.displayName = "DropzoneLabel";
+
+interface DropzoneMessageProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const DropzoneMessage = forwardRef<HTMLParagraphElement, DropzoneMessageProps>(
+  (props, ref) => {
+    const { children, ...rest } = props;
+    const context = useDropzoneContext();
+    if (!context) {
+      throw new Error("DropzoneRootMessage must be used within a Dropzone");
+    }
+
+    const body = context.rootError ? String(context.rootError) : children;
+    return (
+      <p
+        ref={ref}
+        id={context.rootMessageId}
+        {...rest}
+        className={cn(
+          "h-5 text-[0.8rem] font-medium text-destructive",
+          rest.className,
+        )}
+      >
+        {body}
+      </p>
+    );
+  },
+);
+DropzoneMessage.displayName = "DropzoneMessage";
+
 interface DropzoneRemoveFileProps extends ButtonProps {}
 
 const DropzoneRemoveFile = forwardRef<
@@ -669,144 +768,46 @@ const DropzoneRetryFile = forwardRef<HTMLButtonElement, DropzoneRetryFileProps>(
 );
 DropzoneRetryFile.displayName = "DropzoneRetryFile";
 
-interface DropzoneFileMessageProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
+interface InfiniteProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+  status: "pending" | "success" | "error";
+}
 
-const DropzoneFileMessage = forwardRef<
-  HTMLParagraphElement,
-  DropzoneFileMessageProps
->((props, ref) => {
-  const { children, ...rest } = props;
-  const context = useDropzoneFileListContext();
-  if (!context) {
-    throw new Error(
-      "DropzoneFileMessage must be used within a DropzoneFileListItem",
-    );
-  }
+const valueTextMap = {
+  pending: "indeterminate",
+  success: "100%",
+  error: "error",
+};
 
-  const body =
-    context.fileStatus.status === "error"
-      ? String(context.fileStatus.error)
-      : children;
-  return (
-    <p
-      ref={ref}
-      id={context.messageId}
-      {...rest}
-      className={cn(
-        "h-5 text-[0.8rem] font-medium text-destructive",
-        rest.className,
-      )}
-    >
-      {body}
-    </p>
-  );
-});
-DropzoneFileMessage.displayName = "DropzoneFileMessage";
-
-interface DropzoneMessageProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const DropzoneMessage = forwardRef<HTMLParagraphElement, DropzoneMessageProps>(
-  (props, ref) => {
-    const { children, ...rest } = props;
-    const context = useDropzoneContext();
-    if (!context) {
-      throw new Error("DropzoneRootMessage must be used within a Dropzone");
-    }
-
-    const body = context.rootError ? String(context.rootError) : children;
+const InfiniteProgress = forwardRef<HTMLDivElement, InfiniteProgressProps>(
+  ({ className, ...props }, ref) => {
+    const done = props.status === "success" || props.status === "error";
+    const error = props.status === "error";
     return (
-      <p
+      <div
         ref={ref}
-        id={context.rootMessageId}
-        {...rest}
-        className={cn(
-          "h-5 text-[0.8rem] font-medium text-destructive",
-          rest.className,
-        )}
-      >
-        {body}
-      </p>
-    );
-  },
-);
-DropzoneMessage.displayName = "DropzoneMessage";
-
-interface DropzoneTriggerProps
-  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
-
-const DropzoneLabel = forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
-  ({ className, children, ...props }, ref) => {
-    const context = useDropzoneContext();
-    if (!context) {
-      throw new Error("DropzoneLabel must be used within a Dropzone");
-    }
-
-    const { fileStatuses, getFileMessageId } = context;
-
-    const fileMessageIds = useMemo(
-      () =>
-        fileStatuses
-          .filter((file) => file.status === "error")
-          .map((file) => getFileMessageId(file.id)),
-      [fileStatuses, getFileMessageId],
-    );
-
-    return (
-      <label
-        ref={ref}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuetext={valueTextMap[props.status]}
         {...props}
         className={cn(
-          "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
+          "relative h-2 w-full overflow-hidden rounded-full bg-muted",
           className,
         )}
       >
-        {children}
-        <input
-          {...context.getInputProps({
-            style: {
-              display: undefined,
-            },
-            className: "sr-only",
-            tabIndex: undefined,
-          })}
-          aria-describedby={
-            context.isInvalid
-              ? [context.rootMessageId, ...fileMessageIds].join(" ")
-              : undefined
-          }
-          aria-invalid={context.isInvalid}
+        <div
+          //   TODO: add proper done transition
+          className={cn(
+            "h-full w-full rounded-full bg-primary",
+            done ? "translate-x-0" : "animate-infinite-progress",
+            error && "bg-destructive",
+          )}
         />
-      </label>
+      </div>
     );
   },
 );
-DropzoneLabel.displayName = "DropzoneLabel";
-
-export interface DropzoneDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const DropzoneDescription = forwardRef<
-  HTMLParagraphElement,
-  DropzoneDescriptionProps
->((props, ref) => {
-  const { className, ...rest } = props;
-  const context = useDropzoneContext();
-  if (!context) {
-    throw new Error("DropzoneDescription must be used within a Dropzone");
-  }
-
-  return (
-    <p
-      ref={ref}
-      id={context.rootDescriptionId}
-      {...rest}
-      className={cn("text-sm text-muted-foreground", className)}
-    />
-  );
-});
-DropzoneDescription.displayName = "DropzoneDescription";
+InfiniteProgress.displayName = "InfiniteProgress";
 
 export {
   Dropzone,
