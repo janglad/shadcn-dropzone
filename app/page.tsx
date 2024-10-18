@@ -74,9 +74,9 @@ export default function Home() {
       <Dropzone {...dropzone}>
         <DropzoneMessage className="text-right" />
         <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
-          <Upload />
-          <DropzoneLabel>
-            Click or drag and drop files to upload them
+          <DropzoneLabel className="flex flex-col items-center gap-4 rounded-md px-6 py-4">
+            <Upload />
+            Click here or drag and drop files to upload them
           </DropzoneLabel>
           <DropzoneFileList
             style={{

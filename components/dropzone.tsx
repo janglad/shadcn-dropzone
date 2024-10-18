@@ -15,7 +15,6 @@ import {
   useDropzone as rootUseDropzone,
 } from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
-import { Label } from "./ui/label";
 
 type DropzoneResult<TUploadRes, TUploadError> =
   | {
@@ -447,38 +446,21 @@ export function DropZoneArea(props: DropZoneAreaProps) {
     throw new Error("DropzoneArea must be used within a Dropzone");
   }
 
-  const fileMessageIds = context.fileStatuses
-    .filter((file) => file.status === "error")
-    .map((file) => context.getFileMessageId(file.id));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { onClick: _, ...rootProps } = context.getRootProps();
 
   return (
     <div
-      {...context.getRootProps()}
+      {...rootProps}
       {...rest}
       aria-label="dropzone"
-      role="button"
       className={cn(
-        "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background hover:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         context.isDragActive && "animate-pulse bg-black/5",
         context.isInvalid && "border-destructive",
         rest.className,
       )}
     >
-      <input
-        {...context.getInputProps()}
-        style={{
-          display: "block",
-        }}
-        className="sr-only"
-        tabIndex={0}
-        id={context.inputId}
-        aria-describedby={
-          context.isInvalid
-            ? [context.rootMessageId, ...fileMessageIds].join(" ")
-            : undefined
-        }
-        aria-invalid={context.isInvalid}
-      />
       {children}
     </div>
   );
@@ -685,14 +667,53 @@ export function DropzoneMessage(props: DropzoneMessageProps) {
   );
 }
 
-interface DropzoneLabelProps
+interface DropzoneTriggerProps
   extends React.LabelHTMLAttributes<HTMLLabelElement> {}
 
-export function DropzoneLabel(props: DropzoneLabelProps) {
+export function DropzoneLabel({
+  className,
+  children,
+  ...props
+}: DropzoneTriggerProps) {
   const context = useDropzoneContext();
   if (!context) {
     throw new Error("DropzoneLabel must be used within a Dropzone");
   }
 
-  return <Label htmlFor={context.inputId} {...props} />;
+  const { fileStatuses, getFileMessageId } = context;
+
+  const fileMessageIds = useMemo(
+    () =>
+      fileStatuses
+        .filter((file) => file.status === "error")
+        .map((file) => getFileMessageId(file.id)),
+    [fileStatuses, getFileMessageId],
+  );
+
+  return (
+    <label
+      {...props}
+      className={cn(
+        "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 hover:bg-secondary/80",
+        className,
+      )}
+    >
+      {children}
+      <input
+        {...context.getInputProps({
+          style: {
+            display: undefined,
+          },
+          className: "sr-only",
+          tabIndex: undefined,
+        })}
+        aria-describedby={
+          context.isInvalid
+            ? [context.rootMessageId, ...fileMessageIds].join(" ")
+            : undefined
+        }
+        aria-invalid={context.isInvalid}
+      />
+    </label>
+  );
 }
