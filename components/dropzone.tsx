@@ -701,7 +701,7 @@ export function DropzoneLabel({
     <label
       {...props}
       className={cn(
-        "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 hover:bg-secondary/80",
+        "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
         className,
       )}
     >
