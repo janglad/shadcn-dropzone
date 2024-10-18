@@ -586,6 +586,11 @@ interface DropzoneRemoveFileProps extends ButtonProps {}
 
 export function DropzoneRemoveFile(props: DropzoneRemoveFileProps) {
   const context = useDropzoneFileListContext();
+  if (!context) {
+    throw new Error(
+      "DropzoneRemoveFile must be used within a DropzoneFileListItem",
+    );
+  }
   return (
     <Button onClick={context.onRemoveFile} type="button" size="icon" {...props}>
       {props.children}
@@ -597,6 +602,11 @@ interface DropzoneRetryFileProps extends ButtonProps {}
 
 export function DropzoneRetryFile(props: DropzoneRetryFileProps) {
   const context = useDropzoneFileListContext();
+  if (!context) {
+    throw new Error(
+      "DropzoneRetryFile must be used within a DropzoneFileListItem",
+    );
+  }
 
   const canRetry = context.canRetry;
 
@@ -625,6 +635,11 @@ interface DropzoneFileMessageProps
 export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
   const { children, ...rest } = props;
   const context = useDropzoneFileListContext();
+  if (!context) {
+    throw new Error(
+      "DropzoneFileMessage must be used within a DropzoneFileListItem",
+    );
+  }
 
   const body =
     context.fileStatus.status === "error"
@@ -650,6 +665,9 @@ interface DropzoneRootMessageProps
 export function DropzoneRootMessage(props: DropzoneRootMessageProps) {
   const { children, ...rest } = props;
   const context = useDropzoneContext();
+  if (!context) {
+    throw new Error("DropzoneRootMessage must be used within a Dropzone");
+  }
 
   const body = context.rootError ? String(context.rootError) : children;
   return (
