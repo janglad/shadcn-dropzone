@@ -70,7 +70,7 @@ export default function Home() {
   });
 
   return (
-    <main className="container min-h-dvh pt-80">
+    <main className="container min-h-dvh pb-20 pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
         <div className="flex justify-between">
@@ -103,9 +103,9 @@ export default function Home() {
                 className="h-[112px] shrink-0"
               >
                 <div className="flex justify-between">
-                  <div className="flex items-center gap-2 font-bold">
+                  <div className="flex min-w-0 items-center gap-2 font-bold">
                     <FileIcon className="size-5 text-muted-foreground" />
-                    {file.fileName}
+                    <p className="truncate">{file.fileName}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {file.status === "error" && (
