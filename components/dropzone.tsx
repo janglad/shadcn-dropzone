@@ -446,12 +446,19 @@ export function DropZoneArea(props: DropZoneAreaProps) {
     throw new Error("DropzoneArea must be used within a Dropzone");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { onClick: _, ...rootProps } = context.getRootProps();
+  const { onFocus, onBlur, onDragEnter, onDragLeave, onDrop, ref } =
+    context.getRootProps();
 
   return (
+    // A11y behavior is handled through Trigger. All of these are only relevant to drag and drop which means this should be fine?
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
-      {...rootProps}
+      ref={ref}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
       {...rest}
       aria-label="dropzone"
       className={cn(
