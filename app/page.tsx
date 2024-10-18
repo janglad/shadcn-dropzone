@@ -6,6 +6,7 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
+  DropzoneLabel,
   DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
@@ -74,7 +75,9 @@ export default function Home() {
         <DropzoneMessage className="text-right" />
         <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
           <Upload />
-          <p>Click or drag and drop files to upload them</p>
+          <DropzoneLabel>
+            Click or drag and drop files to upload them
+          </DropzoneLabel>
           <DropzoneFileList
             style={{
               height: `${

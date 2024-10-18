@@ -15,6 +15,7 @@ import {
   useDropzone as rootUseDropzone,
 } from "react-dropzone";
 import { Button, ButtonProps } from "./ui/button";
+import { Label } from "./ui/label";
 
 type DropzoneResult<TUploadRes, TUploadError> =
   | {
@@ -682,4 +683,16 @@ export function DropzoneMessage(props: DropzoneMessageProps) {
       {body}
     </p>
   );
+}
+
+interface DropzoneLabelProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+
+export function DropzoneLabel(props: DropzoneLabelProps) {
+  const context = useDropzoneContext();
+  if (!context) {
+    throw new Error("DropzoneLabel must be used within a Dropzone");
+  }
+
+  return <Label htmlFor={context.inputId} {...props} />;
 }
