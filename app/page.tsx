@@ -3,6 +3,7 @@
 import {
   Dropzone,
   DropZoneArea,
+  DropzoneDescription,
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
@@ -72,7 +73,12 @@ export default function Home() {
     <main className="container min-h-dvh pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
-        <DropzoneMessage className="text-right" />
+        <div className="flex justify-between">
+          <DropzoneDescription>
+            A tester for shadcn-dropzone.
+          </DropzoneDescription>
+          <DropzoneMessage className="text-right" />
+        </div>
         <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
           <DropzoneLabel className="flex flex-col items-center gap-4 rounded-md px-6 py-4">
             <Upload />

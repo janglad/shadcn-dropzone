@@ -227,6 +227,7 @@ interface UseDropzoneReturn<TUploadRes, TUploadError> {
   rootError: string | undefined;
   inputId: string;
   rootMessageId: string;
+  rootDescriptionId: string;
   getFileMessageId: (id: string) => string;
 }
 
@@ -248,6 +249,7 @@ export function useDropzone<TUploadRes, TUploadError>(
 
   const inputId = useId();
   const rootMessageId = `${inputId}-root-message`;
+  const rootDescriptionId = `${inputId}-description`;
   const [rootError, _setRootError] = useState<string | undefined>(undefined);
 
   const setRootError = useCallback(
@@ -391,6 +393,7 @@ export function useDropzone<TUploadRes, TUploadError>(
     getInputProps: dropzone.getInputProps,
     inputId,
     rootMessageId,
+    rootDescriptionId,
     getFileMessageId,
     onRemoveFile,
     onRetry,
@@ -415,6 +418,7 @@ const DropZoneContext = createContext<UseDropzoneReturn<any, any>>({
   rootError: undefined,
   inputId: "",
   rootMessageId: "",
+  rootDescriptionId: "",
   getFileMessageId: () => "",
 });
 
@@ -722,5 +726,24 @@ export function DropzoneLabel({
         aria-invalid={context.isInvalid}
       />
     </label>
+  );
+}
+
+interface DropzoneDescriptionProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+export function DropzoneDescription(props: DropzoneDescriptionProps) {
+  const { className, ...rest } = props;
+  const context = useDropzoneContext();
+  if (!context) {
+    throw new Error("DropzoneDescription must be used within a Dropzone");
+  }
+
+  return (
+    <p
+      id={context.rootDescriptionId}
+      {...rest}
+      className={cn("text-sm text-muted-foreground", className)}
+    />
   );
 }
