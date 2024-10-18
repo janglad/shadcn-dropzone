@@ -52,6 +52,7 @@ export function PlaygroundForm(props: {
       <PopoverTrigger asChild className="fixed right-10 top-10">
         <Button size="icon">
           <CogIcon />
+          <span className="sr-only">Settings</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent>
