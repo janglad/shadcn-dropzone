@@ -6,9 +6,9 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
+  DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
-  DropzoneRootMessage,
   InfiniteProgress,
   useDropzone,
 } from "@/components/dropzone";
@@ -71,7 +71,7 @@ export default function Home() {
     <main className="container min-h-dvh pt-80">
       <PlaygroundForm form={form} />
       <Dropzone {...dropzone}>
-        <DropzoneRootMessage className="text-right" />
+        <DropzoneMessage className="text-right" />
         <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
           <Upload />
           <p>Click or drag and drop files to upload them</p>

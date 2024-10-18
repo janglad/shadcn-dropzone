@@ -659,10 +659,10 @@ export function DropzoneFileMessage(props: DropzoneFileMessageProps) {
   );
 }
 
-interface DropzoneRootMessageProps
+interface DropzoneMessageProps
   extends React.HTMLAttributes<HTMLParagraphElement> {}
 
-export function DropzoneRootMessage(props: DropzoneRootMessageProps) {
+export function DropzoneMessage(props: DropzoneMessageProps) {
   const { children, ...rest } = props;
   const context = useDropzoneContext();
   if (!context) {
