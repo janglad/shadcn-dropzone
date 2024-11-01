@@ -505,32 +505,27 @@ const useDropzoneFileListContext = () => {
   return useContext(DropzoneFileListContext);
 };
 
-interface DropZoneFileListProps<TUploadRes, TUploadError>
-  extends React.OlHTMLAttributes<HTMLOListElement> {
-  render: (status: FileStatus<TUploadRes, TUploadError>) => React.ReactNode;
-}
+interface DropZoneFileListProps
+  extends React.OlHTMLAttributes<HTMLOListElement> {}
 
-const DropzoneFileList = forwardRef<
-  HTMLOListElement,
-  DropZoneFileListProps<unknown, unknown>
->(({ className, ...props }, ref) => {
-  const context = useDropzoneContext();
-  if (!context) {
-    throw new Error("DropzoneFileList must be used within a Dropzone");
-  }
-
-  const { render, ...rest } = props;
-  return (
-    <ol
-      ref={ref}
-      aria-label="dropzone-file-list"
-      {...rest}
-      className={cn("flex flex-col gap-4 px-4 py-2", className)}
-    >
-      {context.fileStatuses.map((status) => render(status))}
-    </ol>
-  );
-});
+const DropzoneFileList = forwardRef<HTMLOListElement, DropZoneFileListProps>(
+  (props, ref) => {
+    const context = useDropzoneContext();
+    if (!context) {
+      throw new Error("DropzoneFileList must be used within a Dropzone");
+    }
+    return (
+      <ol
+        ref={ref}
+        aria-label="dropzone-file-list"
+        {...props}
+        className={cn("flex flex-col gap-4 px-4 py-2", props.className)}
+      >
+        {props.children}
+      </ol>
+    );
+  },
+);
 DropzoneFileList.displayName = "DropzoneFileList";
 
 interface DropzoneFileListItemProps<TUploadRes, TUploadError>

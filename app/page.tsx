@@ -96,7 +96,8 @@ export default function Home() {
               paddingBottom: "8px",
             }}
             className="w-full overflow-hidden transition-all duration-300"
-            render={(file) => (
+          >
+            {dropzone.fileStatuses.map((file) => (
               <DropzoneFileListItem
                 key={file.id}
                 file={file}
@@ -135,8 +136,8 @@ export default function Home() {
                   <DropzoneFileMessage />
                 </div>
               </DropzoneFileListItem>
-            )}
-          />
+            ))}
+          </DropzoneFileList>
         </DropZoneArea>
       </Dropzone>
     </main>
