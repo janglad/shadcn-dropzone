@@ -1,5 +1,94 @@
 ---
-title: Hello
+title: Dropzone
+description: A Shadcn/UI style component for file uploads.
 ---
 
-## Hello world
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+{/* Preview/code switcher */}
+
+## Installation
+
+This is assuming you have Shadcnn/UI set up in your project. If you haven't, [follow this guide](https://ui.shadcn.com/docs/installation).
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+    ```bash
+    npm i react-dropzone;
+    npx shadcn add@latest add button;
+    ```
+
+  </Tab>
+  
+  <Tab value="pnpm">
+    ```bash 
+    pnpm i react-dropzone;
+    pnpm dlx shadcn@latest add button;
+    ```
+
+  </Tab>
+  <Tab value="yarn">
+    ```bash 
+    yarn add react-dropzone;
+    npx dlx shadcn@latest add button;
+    ```
+
+  </Tab>
+  <Tab value="bun">
+    ```bash 
+    bun add react-dropzone;
+    bunx --bun shadcn@latest add button
+    ```
+  </Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import {
+  Dropzone,
+  DropZoneArea,
+  DropzoneDescription,
+  DropzoneFileList,
+  DropzoneFileListItem,
+  DropzoneFileMessage,
+  DropzoneLabel,
+  DropzoneMessage,
+  DropzoneRemoveFile,
+  DropzoneRetryFile,
+  InfiniteProgress,
+  useDropzone,
+} from "@/components/dropzone";
+```
+
+```tsx
+const dropzone = useDropzone();
+
+return (
+  <Dropzone {...dropzone}>
+    <DropzoneDescription>
+      These will be uploaded to the server.
+    </DropzoneDescription>
+    <DropzoneMessage />
+    <DropZoneArea>
+      <DropzoneLabel>
+        Click here or drag and drop files to upload them
+      </DropzoneLabel>
+      <DropzoneFileList>
+        {dropzone.fileStatuses.map((file) => (
+          <DropzoneFileListItem key={file.id} file={file}>
+            <DropzoneRetryFile>Retry</DropzoneRetryFile>
+            <DropzoneRemoveFile>Remove</DropzoneRemoveFile>
+            <DropzoneFileMessage />
+            <InfiniteProgress status={file.status} />
+          </DropzoneFileListItem>
+        ))}
+      </DropzoneFileList>
+    </DropZoneArea>
+  </Dropzone>
+);
+```
+
+## Examples
+
+### Single File
