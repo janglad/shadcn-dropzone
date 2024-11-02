@@ -17,7 +17,7 @@ import {
 import { FileIcon, RotateCcwIcon, Trash2Icon, Upload } from "lucide-react";
 import { PlaygroundForm, usePlaygroundForm } from "./controls";
 
-export default function Home() {
+export function Demo() {
   const form = usePlaygroundForm();
 
   const values = form.watch();
