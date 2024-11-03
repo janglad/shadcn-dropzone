@@ -156,7 +156,7 @@ const getRootError = (
   return joinedErrors.charAt(0).toUpperCase() + joinedErrors.slice(1);
 };
 
-type UseDropzoneProps<TUploadRes, TUploadError> = {
+type UseDropzoneProps<TUploadRes, TUploadError = string> = {
   onDropFile: (
     file: File,
   ) => Promise<
