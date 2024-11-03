@@ -156,7 +156,7 @@ const getRootError = (
   return joinedErrors.charAt(0).toUpperCase() + joinedErrors.slice(1);
 };
 
-type UseDropzoneProps<TUploadRes, TUploadError = string> = {
+type UseDropzoneProps<TUploadRes, TUploadError> = {
   onDropFile: (
     file: File,
   ) => Promise<
@@ -177,10 +177,10 @@ type UseDropzoneProps<TUploadRes, TUploadError = string> = {
   };
 } & (TUploadError extends string
   ? {
-      shapeUploadError?: (error: NoInfer<TUploadError>) => string | void;
+      shapeUploadError?: (error: TUploadError) => string | void;
     }
   : {
-      shapeUploadError: (error: NoInfer<TUploadError>) => string | void;
+      shapeUploadError: (error: TUploadError) => string | void;
     });
 
 interface UseDropzoneReturn<TUploadRes, TUploadError> {
@@ -199,7 +199,7 @@ interface UseDropzoneReturn<TUploadRes, TUploadError> {
   getFileMessageId: (id: string) => string;
 }
 
-const useDropzone = <TUploadRes, TUploadError>(
+const useDropzone = <TUploadRes, TUploadError = string>(
   props: UseDropzoneProps<TUploadRes, TUploadError>,
 ): UseDropzoneReturn<TUploadRes, TUploadError> => {
   const {
