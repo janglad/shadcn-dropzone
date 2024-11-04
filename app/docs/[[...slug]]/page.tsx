@@ -1,5 +1,4 @@
 import { source } from "@/app/source";
-import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import {
   DocsBody,
@@ -28,11 +27,6 @@ export default async function Page({
         <MDX
           components={{
             ...defaultMdxComponents,
-            pre: ({ ref: _ref, ...props }) => (
-              <CodeBlock {...props}>
-                <Pre className="max-h-none">{props.children}</Pre>
-              </CodeBlock>
-            ),
           }}
         />
       </DocsBody>
