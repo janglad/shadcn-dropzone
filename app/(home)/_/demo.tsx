@@ -7,10 +7,10 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
-  DropzoneLabel,
   DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
+  DropzoneTrigger,
   InfiniteProgress,
   useDropzone,
 } from "@/components/dropzone";
@@ -80,10 +80,10 @@ export function Demo() {
           <DropzoneMessage className="text-right" />
         </div>
         <DropZoneArea className="flex flex-col items-center gap-2 pt-10">
-          <DropzoneLabel className="flex flex-col items-center gap-4 rounded-md px-6 py-4">
+          <DropzoneTrigger className="flex flex-col items-center gap-4 rounded-md px-6 py-4">
             <Upload />
             Click here or drag and drop files to upload them
-          </DropzoneLabel>
+          </DropzoneTrigger>
           <DropzoneFileList
             style={{
               height: `${

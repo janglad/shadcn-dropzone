@@ -615,58 +615,6 @@ const DropzoneFileMessage = forwardRef<
   );
 });
 DropzoneFileMessage.displayName = "DropzoneFileMessage";
-
-interface DropzoneTriggerProps
-  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
-
-const DropzoneLabel = forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
-  ({ className, children, ...props }, ref) => {
-    const context = useDropzoneContext();
-    if (!context) {
-      throw new Error("DropzoneLabel must be used within a Dropzone");
-    }
-
-    const { fileStatuses, getFileMessageId } = context;
-
-    const fileMessageIds = useMemo(
-      () =>
-        fileStatuses
-          .filter((file) => file.status === "error")
-          .map((file) => getFileMessageId(file.id)),
-      [fileStatuses, getFileMessageId],
-    );
-
-    return (
-      <label
-        ref={ref}
-        {...props}
-        className={cn(
-          "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
-          className,
-        )}
-      >
-        {children}
-        <input
-          {...context.getInputProps({
-            style: {
-              display: undefined,
-            },
-            className: "sr-only",
-            tabIndex: undefined,
-          })}
-          aria-describedby={
-            context.isInvalid
-              ? [context.rootMessageId, ...fileMessageIds].join(" ")
-              : undefined
-          }
-          aria-invalid={context.isInvalid}
-        />
-      </label>
-    );
-  },
-);
-DropzoneLabel.displayName = "DropzoneLabel";
-
 interface DropzoneMessageProps
   extends React.HTMLAttributes<HTMLParagraphElement> {}
 
@@ -763,6 +711,57 @@ const DropzoneRetryFile = forwardRef<HTMLButtonElement, DropzoneRetryFileProps>(
 );
 DropzoneRetryFile.displayName = "DropzoneRetryFile";
 
+interface DropzoneTriggerProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+
+const DropzoneTrigger = forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
+  ({ className, children, ...props }, ref) => {
+    const context = useDropzoneContext();
+    if (!context) {
+      throw new Error("DropzoneLabel must be used within a Dropzone");
+    }
+
+    const { fileStatuses, getFileMessageId } = context;
+
+    const fileMessageIds = useMemo(
+      () =>
+        fileStatuses
+          .filter((file) => file.status === "error")
+          .map((file) => getFileMessageId(file.id)),
+      [fileStatuses, getFileMessageId],
+    );
+
+    return (
+      <label
+        ref={ref}
+        {...props}
+        className={cn(
+          "cursor-pointer rounded-sm bg-secondary px-4 py-2 font-medium ring-offset-background transition-colors focus-within:outline-none hover:bg-secondary/80 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-2",
+          className,
+        )}
+      >
+        {children}
+        <input
+          {...context.getInputProps({
+            style: {
+              display: undefined,
+            },
+            className: "sr-only",
+            tabIndex: undefined,
+          })}
+          aria-describedby={
+            context.isInvalid
+              ? [context.rootMessageId, ...fileMessageIds].join(" ")
+              : undefined
+          }
+          aria-invalid={context.isInvalid}
+        />
+      </label>
+    );
+  },
+);
+DropzoneTrigger.displayName = "DropzoneTrigger";
+
 interface InfiniteProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   status: "pending" | "success" | "error";
 }
@@ -811,10 +810,10 @@ export {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
-  DropzoneLabel,
   DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
+  DropzoneTrigger,
   InfiniteProgress,
   useDropzone,
 };
