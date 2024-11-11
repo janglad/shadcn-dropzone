@@ -16,42 +16,4 @@ Copy [this file](/components/dropzone.tsx) and update imports as needed.
 
 ## Usage
 
-```tsx
-import {
-  Dropzone,
-  DropZoneArea,
-  DropzoneFileList,
-  DropzoneFileListItem,
-  DropzoneFileMessage,
-  DropzoneRemoveFile,
-  DropzoneRetryFile,
-  DropzoneRootMessage,
-  InfiniteProgress,
-  useDropzone,
-} from "@/components/dropzone";
-```
-
-```tsx
-const dropzone = useDropzone();
-
-<Dropzone {...dropzone}>
-  <DropZoneArea>
-    <DropzoneRootMessage />
-    <DropzoneFileList
-      render={() => (
-        <DropzoneFileListItem>
-          <DropzoneFileMessage />
-          <DropzoneRemoveFile />
-          <DropzoneRetryFile />
-        </DropzoneFileListItem>
-      )}
-    />
-  </DropZoneArea>
-</Dropzone>;
-```
-
-## Example
-
-[Playground](https://shadcn-dropzone.vercel.app/). (Quick settings are available through top right menu)
-
-For the example used in the playground [see here](app/page.tsx)
+Check out the[docs](https://shadcn-dropzone.vercel.app/).

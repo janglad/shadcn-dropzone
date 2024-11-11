@@ -730,7 +730,7 @@ const DropzoneTrigger = forwardRef<HTMLLabelElement, DropzoneTriggerProps>(
   ({ className, children, ...props }, ref) => {
     const context = useDropzoneContext();
     if (!context) {
-      throw new Error("DropzoneLabel must be used within a Dropzone");
+      throw new Error("DropzoneTrigger must be used within a Dropzone");
     }
 
     const { fileStatuses, getFileMessageId } = context;
