@@ -6,6 +6,7 @@ import {
   DropzoneTrigger,
   useDropzone,
 } from "@/components/dropzone";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function SingleFile() {
@@ -24,9 +25,11 @@ export function SingleFile() {
       maxSize: 10 * 1024 * 1024,
       maxFiles: 1,
     },
+    shiftOnMaxFiles: true,
   });
 
   const avatarSrc = dropzone.fileStatuses[0]?.result;
+  const isPending = dropzone.fileStatuses[0]?.status === "pending";
 
   return (
     <div className="not-prose">
@@ -36,7 +39,7 @@ export function SingleFile() {
         </div>
         <DropZoneArea>
           <DropzoneTrigger className="flex gap-8 bg-transparent text-sm">
-            <Avatar>
+            <Avatar className={cn(isPending && "animate-pulse")}>
               <AvatarImage className="object-cover" src={avatarSrc} />
               <AvatarFallback>JG</AvatarFallback>
             </Avatar>
