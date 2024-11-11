@@ -175,6 +175,7 @@ type UseDropzoneProps<TUploadRes, TUploadError> = {
     maxSize?: number;
     maxFiles?: number;
   };
+  shiftOnMaxFiles?: boolean;
 } & (TUploadError extends string
   ? {
       shapeUploadError?: (error: TUploadError) => string | void;
@@ -213,6 +214,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
     maxRetryCount,
     autoRetry,
     validation,
+    shiftOnMaxFiles,
   } = props;
 
   const inputId = useId();
@@ -319,7 +321,9 @@ const useDropzone = <TUploadRes, TUploadError = string>(
   const getFileMessageId = (id: string) => `${inputId}-${id}-message`;
 
   const dropzone = rootUseDropzone({
-    ...validation,
+    accept: validation?.accept,
+    minSize: validation?.minSize,
+    maxSize: validation?.maxSize,
     onDropAccepted: async (newFiles) => {
       setRootError(undefined);
 
@@ -327,16 +331,24 @@ const useDropzone = <TUploadRes, TUploadError = string>(
       const fileCount = fileStatuses.length;
       const maxNewFiles =
         validation?.maxFiles === undefined
-          ? undefined
+          ? Infinity
           : validation?.maxFiles - fileCount;
 
-      const slicedFiles = newFiles.slice(0, maxNewFiles);
-
-      if (maxNewFiles !== undefined && maxNewFiles < newFiles.length) {
-        setRootError(getRootError(["too-many-files"], validation ?? {}));
+      if (maxNewFiles < newFiles.length) {
+        if (shiftOnMaxFiles === true) {
+        } else {
+          setRootError(getRootError(["too-many-files"], validation ?? {}));
+        }
       }
 
-      const onDropFilePromises = slicedFiles.map(async (file) => {
+      const slicedNewFiles =
+        shiftOnMaxFiles === true ? newFiles : newFiles.slice(0, maxNewFiles);
+
+      const onDropFilePromises = slicedNewFiles.map(async (file, index) => {
+        if (fileCount + 1 > maxNewFiles) {
+          await onRemoveFile(fileStatuses[index].id);
+        }
+
         const id = crypto.randomUUID();
         dispatch({ type: "add", fileName: file.name, file, id });
         await _uploadFile(file, id);
