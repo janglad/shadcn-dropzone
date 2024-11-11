@@ -531,7 +531,7 @@ const DropzoneFileList = forwardRef<HTMLOListElement, DropZoneFileListProps>(
         ref={ref}
         aria-label="dropzone-file-list"
         {...props}
-        className={cn("flex flex-col gap-4 px-4 py-2", props.className)}
+        className={cn("flex flex-col gap-4", props.className)}
       >
         {props.children}
       </ol>
