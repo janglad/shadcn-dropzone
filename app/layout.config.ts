@@ -8,13 +8,7 @@ import { type BaseLayoutProps } from "fumadocs-ui/layouts/shared";
  */
 export const baseOptions: BaseLayoutProps = {
   nav: {
-    title: "SafeFn",
+    title: "Dropzone",
   },
-  links: [
-    {
-      url: "/docs",
-      text: "Docs",
-    },
-  ],
-  githubUrl: "https://github.com/janglad/safe-fn",
+  githubUrl: "https://github.com/janglad/shadcn-dropzone",
 };
