@@ -21,7 +21,7 @@ export function MultiImages() {
         result: URL.createObjectURL(file),
       };
     },
-    dropzoneProps: {
+    validation: {
       accept: {
         "image/*": [".png", ".jpg", ".jpeg"],
       },

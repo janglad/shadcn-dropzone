@@ -169,7 +169,7 @@ type UseDropzoneProps<TUploadRes, TUploadError> = {
   onRootError?: (error: string | undefined) => void;
   maxRetryCount?: number;
   autoRetry?: boolean;
-  dropzoneProps?: {
+  validation?: {
     accept?: Accept;
     minSize?: number;
     maxSize?: number;
@@ -212,7 +212,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
     onRootError: pOnRootError,
     maxRetryCount,
     autoRetry,
-    dropzoneProps,
+    validation,
   } = props;
 
   const inputId = useId();
@@ -319,21 +319,21 @@ const useDropzone = <TUploadRes, TUploadError = string>(
   const getFileMessageId = (id: string) => `${inputId}-${id}-message`;
 
   const dropzone = rootUseDropzone({
-    ...dropzoneProps,
+    ...validation,
     onDropAccepted: async (newFiles) => {
       setRootError(undefined);
 
       // useDropzone hook only checks max file count per group of uploaded files, allows going over if in multiple batches
       const fileCount = fileStatuses.length;
       const maxNewFiles =
-        dropzoneProps?.maxFiles === undefined
+        validation?.maxFiles === undefined
           ? undefined
-          : dropzoneProps?.maxFiles - fileCount;
+          : validation?.maxFiles - fileCount;
 
       const slicedFiles = newFiles.slice(0, maxNewFiles);
 
       if (maxNewFiles !== undefined && maxNewFiles < newFiles.length) {
-        setRootError(getRootError(["too-many-files"], dropzoneProps ?? {}));
+        setRootError(getRootError(["too-many-files"], validation ?? {}));
       }
 
       const onDropFilePromises = slicedFiles.map(async (file) => {
@@ -350,7 +350,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
     onDropRejected: (fileRejections) => {
       const errorMessage = getRootError(
         getDropZoneErrorCodes(fileRejections),
-        dropzoneProps ?? {},
+        validation ?? {},
       );
       setRootError(errorMessage);
     },

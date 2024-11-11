@@ -44,7 +44,7 @@ export function Demo() {
     },
     maxRetryCount: values.maxRetryCount,
     autoRetry: values.autoRetry,
-    dropzoneProps: {
+    validation: {
       maxFiles: values.maxFiles,
       maxSize: values.maxFileSize * 1024 * 1024,
       accept: values.onlyImage
