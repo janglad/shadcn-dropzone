@@ -487,7 +487,7 @@ const DropzoneDescription = forwardRef<
       ref={ref}
       id={context.rootDescriptionId}
       {...rest}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("pb-1 text-sm text-muted-foreground", className)}
     />
   );
 });
