@@ -44,7 +44,7 @@ export function MultiImages() {
             <DropzoneTrigger className="flex flex-col items-center gap-4 bg-transparent p-10 text-center text-sm">
               <CloudUploadIcon className="size-8" />
               <div>
-                <p className="font-semibold">Upload listing images</p>
+                <p className="font-semibold">Upload images</p>
                 <p className="text-sm text-muted-foreground">
                   Click here or drag and drop to upload
                 </p>
