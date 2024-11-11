@@ -53,7 +53,7 @@ export function MultiImages() {
           </DropZoneArea>
         </div>
 
-        <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
+        <DropzoneFileList className="grid gap-3 p-0 md:grid-cols-2 lg:grid-cols-3">
           {dropzone.fileStatuses.map((file) => (
             <DropzoneFileListItem
               className="overflow-hidden rounded-md bg-secondary p-0 shadow-sm"
