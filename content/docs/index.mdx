@@ -55,7 +55,7 @@ import {
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneFileMessage,
-  DropzoneLabel,
+  DropzoneTrigger,
   DropzoneMessage,
   DropzoneRemoveFile,
   DropzoneRetryFile,
@@ -74,9 +74,9 @@ return (
     </DropzoneDescription>
     <DropzoneMessage />
     <DropZoneArea>
-      <DropzoneLabel>
+      <DropzoneTrigger>
         Click here or drag and drop files to upload them
-      </DropzoneLabel>
+      </DropzoneTrigger>
       <DropzoneFileList>
         {dropzone.fileStatuses.map((file) => (
           <DropzoneFileListItem key={file.id} file={file}>
@@ -113,7 +113,7 @@ return (
       DropzoneFileList,
       DropzoneFileListItem,
       DropzoneFileMessage,
-      DropzoneLabel,
+      DropzoneTrigger,
       DropzoneMessage,
       DropzoneRemoveFile,
       DropzoneRetryFile,
