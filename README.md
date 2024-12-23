@@ -5,14 +5,12 @@ A dropzone component built in the style of ShadCn. Uses the `useDropzone` hook f
 ## Todo
 
 - [ ] Integrate with React Hook Form
-- [ ] Make example responsive
-- [ ] Integrate with Shadcn CLI
-- [ ] Look more into accessibility
-- [ ] Actual documentation
 
 ## Installation
 
-Copy [this file](/components/dropzone.tsx) and update imports as needed.
+Make sure you have ShadCn set up in your project and run `pnpx shadcn@latest add 'https://shadcn-dropzone.vercel.app/dropzone.json'`.
+
+Or copy [this file](/components/dropzone.tsx) and update imports as needed.
 
 ## Usage
 
