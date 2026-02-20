@@ -324,6 +324,7 @@ const useDropzone = <TUploadRes, TUploadError = string>(
     accept: validation?.accept,
     minSize: validation?.minSize,
     maxSize: validation?.maxSize,
+    multiple: validation?.maxFiles === 1 ? false : true,
     onDropAccepted: async (newFiles) => {
       setRootError(undefined);
 
